@@ -1,8 +1,0 @@
-import { render, screen } from '@testing-library/react';
-import NAME from './NAME';
-
-describe('NAME tests', () => {
-  test('NAME renders', () => {
-    render(<NAME />);
-  });
-});

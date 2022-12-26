@@ -1,8 +1,6 @@
-use std::{
-    fs::File,
-    io::{Read, Write},
-    path::Path,
-};
+mod templates;
+
+use std::{fs::File, io::Write, path::Path};
 
 use anyhow::{Ok, Result};
 
@@ -11,12 +9,12 @@ pub fn create_component(name: &String, dir: &Option<String>, test: bool) -> Resu
     std::fs::create_dir_all(&dir_name)?;
 
     let component_path = get_component_path(name, &dir_name);
-    let component_content = get_component_content(name)?;
+    let component_content = get_component_content(name);
     write_file(&component_path, component_content)?;
 
     if test {
         let test_path = get_test_path(&name, &dir_name);
-        let test_content = get_test_content(name)?;
+        let test_content = get_test_content(name);
         write_file(&test_path, test_content)?;
     }
 
@@ -27,7 +25,7 @@ pub fn create_test_file(component_name: &String, dir: &Option<String>) -> Result
     let dir_name = get_dir_name(dir);
     std::fs::create_dir_all(&dir_name)?;
 
-    let content = get_test_content(component_name)?;
+    let content = get_test_content(component_name);
     let filepath = get_test_path(component_name, &dir_name);
     write_file(&filepath, content)?;
 
@@ -52,18 +50,16 @@ fn get_test_path(component_name: &String, test_dir: &String) -> String {
     test_path
 }
 
-fn get_component_content(name: &String) -> Result<String> {
-    let tmpl_path = "./templates/component.txt".to_string();
-    let template = read_file(&tmpl_path)?;
+fn get_component_content(name: &String) -> String {
+    let template = templates::COMPONENT.to_string();
     let content = fill_template(template, name);
-    Ok(content)
+    content
 }
 
-fn get_test_content(component_name: &String) -> Result<String> {
-    let tmpl_path = "./templates/test.txt".to_string();
-    let template = read_file(&tmpl_path)?;
+fn get_test_content(component_name: &String) -> String {
+    let template = templates::TEST.to_string();
     let content = fill_template(template, component_name);
-    Ok(content)
+    content
 }
 
 fn fill_template(template: String, component_name: &String) -> String {
@@ -76,14 +72,6 @@ fn write_file(filepath: &String, content: String) -> Result<()> {
     let mut file = File::create(&path)?;
     file.write_all(content.as_bytes())?;
     Ok(())
-}
-
-fn read_file(filepath: &String) -> Result<String> {
-    let tmpl_path = Path::new(filepath);
-    let mut file = File::open(&tmpl_path)?;
-    let mut content = String::new();
-    file.read_to_string(&mut content)?;
-    Ok(content)
 }
 
 #[cfg(test)]
@@ -162,7 +150,7 @@ mod tests {
     #[test]
     fn test_get_component_content() -> Result<()> {
         let name = "Button".to_string();
-        let file_content = get_component_content(&name)?;
+        let file_content = get_component_content(&name);
         let content = file_content.replace("\r\n", "\n");
         let expected = "const Button = () => {};\n\nexport default Button;\n".to_string();
         assert_eq!(content, expected);
@@ -172,7 +160,7 @@ mod tests {
     #[test]
     fn test_get_test_content() -> Result<()> {
         let name = "Button".to_string();
-        let file_content = get_test_content(&name)?;
+        let file_content = get_test_content(&name);
         let content = file_content.replace("\r\n", "\n");
         let expected = "import { render, screen } from '@testing-library/react';\nimport Button from './Button';\n\ndescribe('Button tests', () => {\n  test('Button renders', () => {\n    render(<Button />);\n  });\n});\n".to_string();
         assert_eq!(content, expected);
