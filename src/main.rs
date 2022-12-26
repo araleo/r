@@ -17,7 +17,6 @@ struct Cli {
 
 fn main() -> Result<()> {
     let args = Cli::parse();
-    println!("{:?}", args);
 
     match args.command.as_str() {
         "nfc" => r::create_component(&args.name, &args.dir, !args.skip_test),
