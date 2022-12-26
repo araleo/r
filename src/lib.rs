@@ -6,7 +6,7 @@ use std::{
 
 use anyhow::{Ok, Result};
 
-pub fn create_component(name: &String, dir: &Option<String>) -> Result<()> {
+pub fn create_component(name: &String, dir: &Option<String>, test: bool) -> Result<()> {
     let dir_name = get_dir_name(dir);
     std::fs::create_dir_all(&dir_name)?;
 
@@ -14,8 +14,11 @@ pub fn create_component(name: &String, dir: &Option<String>) -> Result<()> {
     let component_content = get_component_content(name)?;
     write_file(&component_path, component_content)?;
 
-    let test_content = get_test_content(name)?;
-    write_file(&component_path, test_content)?;
+    if test {
+        let test_path = get_test_path(&name, &dir_name);
+        let test_content = get_test_content(name)?;
+        write_file(&test_path, test_content)?;
+    }
 
     Ok(())
 }
@@ -34,9 +37,14 @@ fn get_dir_name(dir: &Option<String>) -> String {
     dir.to_string()
 }
 
-fn get_component_path(name: &String, dir: &String) -> String {
-    let component_path = dir.to_owned() + "/" + name + ".tsx";
+fn get_component_path(component_name: &String, component_dir: &String) -> String {
+    let component_path = component_dir.to_owned() + "/" + component_name + ".tsx";
     component_path
+}
+
+fn get_test_path(component_name: &String, test_dir: &String) -> String {
+    let test_path = test_dir.to_owned() + "/" + component_name + ".test.tsx";
+    test_path
 }
 
 fn get_component_content(name: &String) -> Result<String> {
@@ -112,11 +120,43 @@ mod tests {
     }
 
     #[test]
+    fn test_get_component_nested_path() {
+        let name = "Button".to_string();
+        let dir = "UI/Buttons/Test".to_string();
+        let component_path = get_component_path(&name, &dir);
+        assert_eq!(component_path, "UI/Buttons/Test/Button.tsx");
+    }
+
+    #[test]
     fn test_get_component_path_cwd() {
         let name = "Button".to_string();
         let dir = ".".to_string();
         let component_path = get_component_path(&name, &dir);
         assert_eq!(component_path, "./Button.tsx");
+    }
+
+    #[test]
+    fn test_get_test_path() {
+        let name = "Button".to_string();
+        let dir = "UI".to_string();
+        let test_path = get_test_path(&name, &dir);
+        assert_eq!(test_path, "UI/Button.test.tsx");
+    }
+
+    #[test]
+    fn test_get_test_nested_path() {
+        let name = "Button".to_string();
+        let dir = "UI/Buttons/Test".to_string();
+        let test_path = get_test_path(&name, &dir);
+        assert_eq!(test_path, "UI/Buttons/Test/Button.test.tsx");
+    }
+
+    #[test]
+    fn test_get_test_path_cwd() {
+        let name = "Button".to_string();
+        let dir = ".".to_string();
+        let test_path = get_test_path(&name, &dir);
+        assert_eq!(test_path, "./Button.test.tsx");
     }
 
     #[test]
