@@ -23,9 +23,14 @@ pub fn create_component(name: &String, dir: &Option<String>, test: bool) -> Resu
     Ok(())
 }
 
-pub fn create_test_file(component_name: &String) -> Result<()> {
+pub fn create_test_file(component_name: &String, dir: &Option<String>) -> Result<()> {
+    let dir_name = get_dir_name(dir);
+    std::fs::create_dir_all(&dir_name)?;
+
     let content = get_test_content(component_name)?;
-    println!("{content}");
+    let filepath = get_test_path(component_name, &dir_name);
+    write_file(&filepath, content)?;
+
     Ok(())
 }
 
@@ -79,11 +84,6 @@ fn read_file(filepath: &String) -> Result<String> {
     let mut content = String::new();
     file.read_to_string(&mut content)?;
     Ok(content)
-}
-
-pub fn show_available() -> Result<()> {
-    println!("Available commands: rnfc");
-    Ok(())
 }
 
 #[cfg(test)]

@@ -5,6 +5,7 @@ R is a CLI to automate some of my React workflow.
 ## Features
 
 - [x] Creates a new functional component
+- [x] Createsa new test file
 
 ## Usage
 
