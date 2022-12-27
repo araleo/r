@@ -5,21 +5,39 @@ use clap::Parser;
 struct Cli {
     command: String,
 
-    #[arg(short, long)]
+    #[arg(short, long, help = "Component name")]
     name: String,
 
-    #[arg(short, long)]
+    #[arg(short, long, help = "Component folder")]
+    dir: Option<String>,
+
+    #[arg(short, long, help = "Skip creating test file")]
     skip_test: bool,
 
-    #[arg(short, long)]
-    dir: Option<String>,
+    #[arg(short, long, help = "Creates the component in a subfolder")]
+    folder: bool,
+
+    #[arg(short, long, help = "Uses the components folder as base dir")]
+    component: bool,
+
+    #[arg(short, long, help = "Folder to write test files")]
+    test_folder: Option<String>,
+
+    #[arg(short, long, help = "Folders and paths to ignore")]
+    ignore: Option<String>,
 }
 
 fn main() -> Result<()> {
     let args = Cli::parse();
 
     match args.command.as_str() {
-        "nfc" => r::create_component(&args.name, &args.dir, !args.skip_test),
+        "nfc" => r::create_component(
+            &args.name,
+            &args.dir,
+            args.component,
+            args.folder,
+            !args.skip_test,
+        ),
         "ntf" => r::create_test_file(&args.name, &args.dir),
         _ => Ok(()),
     }?;

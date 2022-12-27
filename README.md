@@ -6,13 +6,27 @@ R is a CLI to automate some of my React workflow.
 
 - [x] Creates a new functional component
 - [x] Creates a new test file
-- [ ] Finds the components folder automatically
+- [x] Finds the components folder automatically
 - [ ] Creates a test file in a \_\_tests\_\_ folder in the proper subfolder (mirroring the apps folder structure)
 
-## Usage
+## Quickstart
+
+To create a new functional component
 
 ```
-r <command> -o --options
+r nfc -n <Name>
+```
+
+To create a new functional component in the components subfolder
+
+```
+r nfc -n <Name> -c
+```
+
+To create a new functional component in the components subfolder in its own subfolder
+
+```
+r nfc -n <Name> -c
 ```
 
 ### Available commands
