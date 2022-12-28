@@ -28,7 +28,7 @@ pub fn create_component(
     write_file(&component_filepath, component_content)?;
 
     if test {
-        let test_dir = get_test_dir(test_folder, &base_dir)?;
+        let test_dir = get_test_dir(test_folder, find_components_folder)?;
         let test_path = Path::new(&test_dir).join(base_path).join(&component_folder);
         let test_path_string = test_path.to_string_lossy().to_string();
         std::fs::create_dir_all(&test_path_string)?;
@@ -49,14 +49,20 @@ fn get_base_dir(find_components_folder: bool, dir: &Option<String>) -> Result<St
     Ok(base_dir)
 }
 
-fn get_test_dir(test_folder: Option<String>, component_dir: &String) -> Result<String> {
+fn get_test_dir(test_folder: Option<String>, find_components_folder: bool) -> Result<String> {
     let test_dir = test_folder.as_deref().unwrap_or("").to_string();
     let test_base_path = if test_dir.is_empty() {
-        component_dir.to_string()
+        "".to_string()
     } else {
         get_subfolder_by_pattern(test_dir)?
     };
-    Ok(test_base_path)
+    let subfolder = if find_components_folder {
+        "/".to_owned() + "components"
+    } else {
+        "".to_string()
+    };
+    let test_dir = test_base_path + &subfolder;
+    Ok(test_dir)
 }
 
 fn get_component_folder_name(create_component_folder: bool, component_name: &String) -> String {
