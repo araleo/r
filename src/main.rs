@@ -37,6 +37,7 @@ fn main() -> Result<()> {
             args.component,
             args.folder,
             !args.skip_test,
+            args.test_folder,
         ),
         "ntf" => r::create_test_file(&args.name, &args.dir),
         _ => Ok(()),

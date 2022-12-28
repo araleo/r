@@ -15,63 +15,65 @@ pub fn create_component(
     find_components_folder: bool,
     create_component_folder: bool,
     test: bool,
+    test_folder: Option<String>,
 ) -> Result<()> {
-    let component_dir = get_base_dir(
-        dir,
-        find_components_folder,
-        create_component_folder,
-        component_name,
-    )?;
-    std::fs::create_dir_all(&component_dir)?;
-
-    let component_path = get_component_filepath(component_name, &component_dir);
+    let base_dir = get_base_dir(find_components_folder, dir)?;
+    let base_path = dir.as_deref().unwrap_or("");
+    let component_folder = get_component_folder_name(create_component_folder, component_name);
+    let component_path = Path::new(&base_dir).join(base_path).join(&component_folder);
+    let component_path_string = component_path.to_string_lossy().to_string();
+    std::fs::create_dir_all(&component_path_string)?;
+    let component_filepath = get_component_filepath(component_name, &component_path_string);
     let component_content = fill_template(templates::COMPONENT.to_string(), component_name);
-    write_file(&component_path, component_content)?;
+    write_file(&component_filepath, component_content)?;
 
     if test {
-        let test_path = get_test_filepath(component_name, &component_dir);
+        let test_dir = get_test_dir(test_folder, &base_dir)?;
+        let test_path = Path::new(&test_dir).join(base_path).join(&component_folder);
+        let test_path_string = test_path.to_string_lossy().to_string();
+        std::fs::create_dir_all(&test_path_string)?;
+        let test_filepath = get_test_filepath(component_name, &test_path_string);
         let test_content = fill_template(templates::TEST.to_string(), component_name);
-        write_file(&test_path, test_content)?;
+        write_file(&test_filepath, test_content)?;
     }
 
     Ok(())
 }
 
-fn get_base_dir(
-    dir: &Option<String>,
-    find_components_folder: bool,
-    create_component_folder: bool,
-    component_name: &String,
-) -> Result<String> {
-    if !find_components_folder {
-        return Ok(dir.as_deref().unwrap_or(".").to_string());
-    }
-
-    let components_dir = get_components_folder_dir(None)?;
-    let component_folder = dir.as_deref().unwrap_or("");
-    let folder_name = get_component_folder_name(create_component_folder, component_name);
-    if component_folder.is_empty() {
-        Ok(components_dir + &folder_name)
+fn get_base_dir(find_components_folder: bool, dir: &Option<String>) -> Result<String> {
+    let base_dir = if !find_components_folder {
+        dir.as_deref().unwrap_or(".").to_string()
     } else {
-        Ok(components_dir + "/" + component_folder + &folder_name)
-    }
+        get_subfolder_by_pattern("components".to_string())?
+    };
+    Ok(base_dir)
 }
 
-fn get_component_folder_name(create_folder: bool, component_name: &String) -> String {
-    if create_folder {
-        "/".to_string() + component_name
+fn get_test_dir(test_folder: Option<String>, component_dir: &String) -> Result<String> {
+    let test_dir = test_folder.as_deref().unwrap_or("").to_string();
+    let test_base_path = if test_dir.is_empty() {
+        component_dir.to_string()
+    } else {
+        get_subfolder_by_pattern(test_dir)?
+    };
+    Ok(test_base_path)
+}
+
+fn get_component_folder_name(create_component_folder: bool, component_name: &String) -> String {
+    if create_component_folder {
+        component_name.to_string()
     } else {
         "".to_string()
     }
 }
 
-pub fn get_components_folder_dir(dir: Option<String>) -> Result<String> {
-    let base_dir = dir.unwrap_or_else(get_cwd_string);
-    let path = Path::new(&base_dir);
-    if path.file_name().unwrap().to_string_lossy() == "components" {
+pub fn get_subfolder_by_pattern(pattern: String) -> Result<String> {
+    let cwd = get_cwd_string();
+    let path = Path::new(&cwd);
+    if path.file_name().unwrap().to_string_lossy() == pattern {
         return Ok(path.to_string_lossy().to_string());
     }
-    walk_dir(base_dir)
+    walk_dir(cwd, pattern.as_str())
 }
 
 fn get_cwd_string() -> String {
@@ -82,7 +84,7 @@ fn get_cwd_string() -> String {
         .to_string()
 }
 
-fn walk_dir(dir: String) -> Result<String> {
+fn walk_dir(dir: String, pattern: &str) -> Result<String> {
     let ignore = vec![".git", "node_modules", "dist", "__tests__", "tests"];
 
     let path = Path::new(&dir);
@@ -92,12 +94,12 @@ fn walk_dir(dir: String) -> Result<String> {
         let entry_path = entry.path();
         let entry_path_string = entry_path.to_string_lossy().to_string();
 
-        if entry_name == "components" {
+        if entry_name == pattern {
             return Ok(entry_path_string);
         }
 
         if entry_path.is_dir() && !ignore.contains(&entry_name.as_str()) {
-            let ok = walk_dir(entry_path_string)?;
+            let ok = walk_dir(entry_path_string, pattern)?;
             if !ok.is_empty() {
                 return Ok(ok);
             }
@@ -127,7 +129,7 @@ fn write_file(filepath: &String, content: String) -> Result<()> {
 }
 
 pub fn create_test_file(component_name: &String, dir: &Option<String>) -> Result<()> {
-    let dir_name = get_base_dir(dir, false, false, component_name)?;
+    let dir_name = get_base_dir(false, dir)?;
     std::fs::create_dir_all(&dir_name)?;
 
     let content = fill_template(templates::TEST.to_string(), component_name);
@@ -140,30 +142,6 @@ pub fn create_test_file(component_name: &String, dir: &Option<String>) -> Result
 #[cfg(test)]
 mod tests {
     use super::*;
-
-    #[test]
-    fn test_get_dir_name() -> Result<()> {
-        let dir = Some("UI".to_string());
-        let dir_name = get_base_dir(&dir, false, false, &"".to_string())?;
-        assert_eq!(dir_name, "UI");
-        Ok(())
-    }
-
-    #[test]
-    fn test_get_nested_dir_name() -> Result<()> {
-        let dir = Some("UI/Buttons/Button".to_string());
-        let dir_name = get_base_dir(&dir, false, false, &"".to_string())?;
-        assert_eq!(dir_name, "UI/Buttons/Button");
-        Ok(())
-    }
-
-    #[test]
-    fn test_get_cwd_name() -> Result<()> {
-        let dir = None;
-        let dir_name = get_base_dir(&dir, false, false, &"".to_string())?;
-        assert_eq!(dir_name, ".");
-        Ok(())
-    }
 
     #[test]
     fn test_get_component_filepath() {
