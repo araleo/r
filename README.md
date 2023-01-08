@@ -7,7 +7,9 @@ R is a CLI to automate some of my React workflow.
 - [x] Creates a new functional component
 - [x] Creates a new test file
 - [x] Finds the components folder automatically
+- [ ] Finds the pages folder automatically
 - [x] Creates a test file in a user input folder in the proper subfolder (mirroring the apps folder structure)
+- [ ] Creates a new hook in the hooks folder
 
 ## Quickstart
 
