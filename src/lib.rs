@@ -23,20 +23,56 @@ pub fn create_component(
     let component_path = Path::new(&base_dir).join(base_path).join(&component_folder);
     let component_path_string = component_path.to_string_lossy().to_string();
     std::fs::create_dir_all(&component_path_string)?;
+
     let component_filepath = get_component_filepath(component_name, &component_path_string);
     let component_content = fill_template(templates::COMPONENT.to_string(), component_name);
     write_file(&component_filepath, component_content)?;
 
     if test {
-        let test_dir = get_test_dir(test_folder, find_components_folder)?;
-        let test_path = Path::new(&test_dir).join(base_path).join(&component_folder);
-        let test_path_string = test_path.to_string_lossy().to_string();
-        std::fs::create_dir_all(&test_path_string)?;
-        let test_filepath = get_test_filepath(component_name, &test_path_string);
-        let test_content = fill_template(templates::TEST.to_string(), component_name);
-        write_file(&test_filepath, test_content)?;
+        create_test(
+            test_folder,
+            find_components_folder,
+            base_path,
+            &component_folder,
+            component_name,
+        )?;
     }
 
+    Ok(())
+}
+
+pub fn create_hook() -> Result<()> {
+    let tmpl = templates::HOOK;
+    println!("{tmpl}");
+    Ok(())
+}
+
+pub fn create_test_file(component_name: &String, dir: &Option<String>) -> Result<()> {
+    let dir_name = get_base_dir(false, dir)?;
+    std::fs::create_dir_all(&dir_name)?;
+
+    let content = fill_template(templates::TEST.to_string(), component_name);
+    let filepath = get_test_filepath(component_name, &dir_name);
+    write_file(&filepath, content)?;
+
+    Ok(())
+}
+
+fn create_test(
+    test_folder: Option<String>,
+    find_components_folder: bool,
+    base_path: &str,
+    component_folder: &String,
+    component_name: &String,
+) -> Result<()> {
+    let test_dir = get_test_dir(test_folder, find_components_folder)?;
+    let test_path = Path::new(&test_dir).join(base_path).join(component_folder);
+    let test_path_string = test_path.to_string_lossy().to_string();
+    std::fs::create_dir_all(&test_path_string)?;
+
+    let test_filepath = get_test_filepath(component_name, &test_path_string);
+    let test_content = fill_template(templates::TEST.to_string(), component_name);
+    write_file(&test_filepath, test_content)?;
     Ok(())
 }
 
@@ -131,17 +167,6 @@ fn write_file(filepath: &String, content: String) -> Result<()> {
     let path = Path::new(filepath);
     let mut file = File::create(path)?;
     file.write_all(content.as_bytes())?;
-    Ok(())
-}
-
-pub fn create_test_file(component_name: &String, dir: &Option<String>) -> Result<()> {
-    let dir_name = get_base_dir(false, dir)?;
-    std::fs::create_dir_all(&dir_name)?;
-
-    let content = fill_template(templates::TEST.to_string(), component_name);
-    let filepath = get_test_filepath(component_name, &dir_name);
-    write_file(&filepath, content)?;
-
     Ok(())
 }
 

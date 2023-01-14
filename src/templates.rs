@@ -12,3 +12,5 @@ describe('NAME tests', () => {
   });
 });
 ";
+
+pub const HOOK: &str = "bolinha";

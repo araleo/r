@@ -20,6 +20,16 @@ struct Cli {
     #[arg(short, long, help = "Uses the components folder as base dir")]
     component: bool,
 
+    #[arg(short, long, help = "Uses the pages folder as base dir")]
+    page: bool,
+
+    #[arg(
+        short,
+        long,
+        help = "Uses the hooks folder as base dir and creates a base test for a react hook"
+    )]
+    hook: bool,
+
     #[arg(short, long, help = "Folder to write test files")]
     test_folder: Option<String>,
 
@@ -40,6 +50,7 @@ fn main() -> Result<()> {
             args.test_folder,
         ),
         "ntf" => r::create_test_file(&args.name, &args.dir),
+        "nh" => r::create_hook(),
         _ => Ok(()),
     }?;
 
