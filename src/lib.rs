@@ -51,25 +51,33 @@ fn get_base_dir(find_components_folder: bool, dir: &Option<String>) -> Result<St
 
 fn get_test_dir(test_folder: Option<String>, find_components_folder: bool) -> Result<String> {
     let test_dir = test_folder.as_deref().unwrap_or("").to_string();
-    let test_base_path = if test_dir.is_empty() {
-        "".to_string()
+    let test_base_path = get_test_base_path(&test_dir)?;
+    let subfolder = get_test_subfolder(find_components_folder);
+    let test_dir = test_base_path + &subfolder;
+    Ok(test_dir)
+}
+
+fn get_test_base_path(test_dir: &String) -> Result<String> {
+    if test_dir.is_empty() {
+        Ok(".".to_string())
     } else {
-        get_subfolder_by_pattern(test_dir)?
-    };
-    let subfolder = if find_components_folder {
+        Ok(get_subfolder_by_pattern(test_dir.to_string())?)
+    }
+}
+
+fn get_test_subfolder(find_components_folder: bool) -> String {
+    if find_components_folder {
         "/".to_owned() + "components"
     } else {
         "".to_string()
-    };
-    let test_dir = test_base_path + &subfolder;
-    Ok(test_dir)
+    }
 }
 
 fn get_component_folder_name(create_component_folder: bool, component_name: &String) -> String {
     if create_component_folder {
         component_name.to_string()
     } else {
-        "".to_string()
+        ".".to_string()
     }
 }
 
