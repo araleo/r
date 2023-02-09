@@ -24,7 +24,10 @@ fn main() -> Result<()> {
     match args.command.as_str() {
         "nc" => r::create_component(&args.name, args.dir, !args.skip_test, args.flat),
         "nh" => r::create_hook(&args.name, args.dir, !args.skip_test, args.flat),
-        _ => Ok(()),
+        _ => {
+            eprintln!("ERROR: Available commands:\nnc: New component\nnh: New hook");
+            Ok(())
+        }
     }?;
 
     Ok(())
