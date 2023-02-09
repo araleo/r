@@ -70,11 +70,11 @@ fn find_folder_by_pattern(root: PathBuf, pattern: &str) -> Result<PathBuf> {
 }
 
 fn is_ignored(entry: &DirEntry) -> bool {
-    let ignore = vec![".git", "node_modules", "dist", "__tests__", "tests"];
+    let ignore = vec!["node_modules", "dist", "__tests__", "tests"];
     entry
         .file_name()
         .to_str()
-        .map(|s| ignore.contains(&s))
+        .map(|s| s.starts_with('.') || ignore.contains(&s))
         .unwrap_or(false)
 }
 
