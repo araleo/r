@@ -5,56 +5,48 @@ R is a CLI to automate some of my React workflow.
 ## Features
 
 - [x] Creates a new functional component
+- [x] Creates a new hook
 - [x] Creates a new test file
-- [x] Finds the components folder automatically
-- [ ] Finds the pages folder automatically
+- [x] Finds the components/hooks/\_\_tests\_\_ folder automatically
 - [x] Creates a test file in a user input folder in the proper subfolder (mirroring the apps folder structure)
-- [ ] Creates a new hook in the hooks folder
 
 ## Quickstart
 
-To create a new functional component in the components subfolder in a subfolder and in its own subfolder
+To create a new functional component in the components folder and in it's own subfolder
 
 ```
-r nfc -n <name> -c -f -d <folder>
+r nc -n <name>
 ```
 
-To create a new functional component in the components subfolder in a subfolder and in its own subfolder and the test file in a different base path
+To create a new functional component in a subdirectory of the components folder and in it's own subfolder
 
 ```
-r nfc -n <name> -c -f -d <folder> -t <test_path>
+r nc -n <name> -d <dir>
 ```
 
-To create a new functional component
+To create a new hook in the hooks folder and in it's own subfolder
 
 ```
-r nfc -n <name>
+r nh -n <name>
 ```
 
-To create a new functional component in the components subfolder
+To create a new hook in a subdirectory of the hooks folder and in it's own subfolder
 
 ```
-r nfc -n <name> -c
-```
-
-To create a new functional component in the components subfolder in its own subfolder
-
-```
-r nfc -n <name> -c -f
+r nh -n <name> -d <dir>
 ```
 
 ### Available commands
 
-- nfc: creates a new functional component
-- ntf: creates a new test file
+- nc: creates a new functional component
+- nh: creates a new hook
 
 ### Available options
 
-- -n --name: Name of the component
+- -n --name: Name of the component / hook / test file
 - -d --dir: Target directory
 
 ### Available flags
 
-- -s --skip-test: Avoid creating a test file when creating a new component
-- -c --component: Finds a components folder to use as base dir
-- -f --folder: Creates the component in a folder with the same name
+- -s --skip-test: Avoids creating a test file when creating a new component or hook
+- -f --flat: Avoids creating a new folder to contain the component or hook

@@ -1,155 +1,106 @@
 mod templates;
 
+use anyhow::{anyhow, Ok, Result};
 use std::{
-    env,
-    fs::{self, File},
+    ffi::OsStr,
+    fs::{create_dir_all, File},
     io::Write,
-    path::Path,
+    path::{Path, PathBuf},
 };
+use walkdir::{DirEntry, WalkDir};
 
-use anyhow::{Ok, Result};
-
-pub fn create_component(
-    component_name: &String,
-    dir: &Option<String>,
-    find_components_folder: bool,
-    create_component_folder: bool,
-    test: bool,
-    test_folder: Option<String>,
-) -> Result<()> {
-    let base_dir = get_base_dir(find_components_folder, dir)?;
-    let base_path = dir.as_deref().unwrap_or("");
-    let component_folder = get_component_folder_name(create_component_folder, component_name);
-    let component_path = Path::new(&base_dir).join(base_path).join(&component_folder);
-    let component_path_string = component_path.to_string_lossy().to_string();
-    std::fs::create_dir_all(&component_path_string)?;
-    let component_filepath = get_component_filepath(component_name, &component_path_string);
-    let component_content = fill_template(templates::COMPONENT.to_string(), component_name);
-    write_file(&component_filepath, component_content)?;
-
+pub fn create_component(name: &str, dir: Option<String>, test: bool, flat: bool) -> Result<()> {
+    let root = get_base_path(".", "components", dir)?;
+    let extension = get_file_extension("component");
+    let path = get_path_to_write(&root, name, extension, flat);
+    let template = fill_template(templates::COMPONENT, name);
+    write_file(&path, template)?;
     if test {
-        let test_dir = get_test_dir(test_folder, find_components_folder)?;
-        let test_path = Path::new(&test_dir).join(base_path).join(&component_folder);
-        let test_path_string = test_path.to_string_lossy().to_string();
-        std::fs::create_dir_all(&test_path_string)?;
-        let test_filepath = get_test_filepath(component_name, &test_path_string);
-        let test_content = fill_template(templates::TEST.to_string(), component_name);
-        write_file(&test_filepath, test_content)?;
+        create_component_test(&root, name, flat)?;
     }
-
     Ok(())
 }
 
-fn get_base_dir(find_components_folder: bool, dir: &Option<String>) -> Result<String> {
-    let base_dir = if !find_components_folder {
-        dir.as_deref().unwrap_or(".").to_string()
-    } else {
-        get_subfolder_by_pattern("components".to_string())?
-    };
-    Ok(base_dir)
+fn create_component_test(root: &Path, name: &str, flat: bool) -> Result<()> {
+    let test_extension = get_file_extension("comp_test");
+    let test_path = get_path_to_write(root, name, test_extension, flat);
+    let test_template = fill_template(templates::TEST, name);
+    write_file(&test_path, test_template)?;
+    Ok(())
 }
 
-fn get_test_dir(test_folder: Option<String>, find_components_folder: bool) -> Result<String> {
-    let test_dir = test_folder.as_deref().unwrap_or("").to_string();
-    let test_base_path = get_test_base_path(&test_dir)?;
-    let subfolder = get_test_subfolder(find_components_folder);
-    let test_dir = test_base_path + &subfolder;
-    Ok(test_dir)
-}
-
-fn get_test_base_path(test_dir: &String) -> Result<String> {
-    if test_dir.is_empty() {
-        Ok(".".to_string())
-    } else {
-        Ok(get_subfolder_by_pattern(test_dir.to_string())?)
+pub fn create_hook(name: &str, dir: Option<String>, test: bool, flat: bool) -> Result<()> {
+    let root = get_base_path(".", "hooks", dir)?;
+    let extension = get_file_extension("hook");
+    let path = get_path_to_write(&root, name, extension, flat);
+    let template = fill_template(templates::HOOK, name);
+    write_file(&path, template)?;
+    if test {
+        create_hook_test(&root, name, flat)?;
     }
+    Ok(())
 }
 
-fn get_test_subfolder(find_components_folder: bool) -> String {
-    if find_components_folder {
-        "/".to_owned() + "components"
-    } else {
-        "".to_string()
-    }
+fn create_hook_test(root: &Path, name: &str, flat: bool) -> Result<()> {
+    let test_extension = get_file_extension("test");
+    let test_path = get_path_to_write(root, name, test_extension, flat);
+    let test_template = fill_template(templates::HOOK_TEST, name);
+    write_file(&test_path, test_template)?;
+    Ok(())
 }
 
-fn get_component_folder_name(create_component_folder: bool, component_name: &String) -> String {
-    if create_component_folder {
-        component_name.to_string()
-    } else {
-        ".".to_string()
-    }
+fn get_base_path(root: &str, pattern: &str, base: Option<String>) -> Result<PathBuf> {
+    let path = find_folder_by_pattern(PathBuf::from(root), pattern)?;
+    Ok(path.join(base.unwrap_or("".to_string())))
 }
 
-pub fn get_subfolder_by_pattern(pattern: String) -> Result<String> {
-    let cwd = get_cwd_string();
-    let path = Path::new(&cwd);
-    if path.file_name().unwrap().to_string_lossy() == pattern {
-        return Ok(path.to_string_lossy().to_string());
-    }
-    walk_dir(cwd, pattern.as_str())
-}
-
-fn get_cwd_string() -> String {
-    env::current_dir()
-        .as_deref()
-        .unwrap()
-        .to_string_lossy()
-        .to_string()
-}
-
-fn walk_dir(dir: String, pattern: &str) -> Result<String> {
-    let ignore = vec![".git", "node_modules", "dist", "__tests__", "tests"];
-
-    let path = Path::new(&dir);
-    for entry in fs::read_dir(path)? {
-        let entry = entry?;
-        let entry_name = entry.file_name().to_string_lossy().to_string();
-        let entry_path = entry.path();
-        let entry_path_string = entry_path.to_string_lossy().to_string();
-
-        if entry_name == pattern {
-            return Ok(entry_path_string);
-        }
-
-        if entry_path.is_dir() && !ignore.contains(&entry_name.as_str()) {
-            let ok = walk_dir(entry_path_string, pattern)?;
-            if !ok.is_empty() {
-                return Ok(ok);
+fn find_folder_by_pattern(root: PathBuf, pattern: &str) -> Result<PathBuf> {
+    let walker = WalkDir::new(root)
+        .into_iter()
+        .filter_entry(|e| !is_ignored(e))
+        .filter_map(|e| e.ok());
+    for entry in walker {
+        if let Some(filename) = entry.path().file_name() {
+            if filename == OsStr::new(pattern) {
+                return Ok(entry.path().canonicalize()?);
             }
         }
     }
-
-    Ok("".to_string())
+    return Err(anyhow!("Pattern not found"));
 }
 
-fn get_component_filepath(component_name: &String, component_dir: &String) -> String {
-    component_dir.to_owned() + "/" + component_name + ".tsx"
+fn is_ignored(entry: &DirEntry) -> bool {
+    let ignore = vec![".git", "node_modules", "dist", "__tests__", "tests"];
+    entry
+        .file_name()
+        .to_str()
+        .map(|s| ignore.contains(&s))
+        .unwrap_or(false)
 }
 
-fn get_test_filepath(component_name: &String, test_dir: &String) -> String {
-    test_dir.to_owned() + "/" + component_name + ".test.tsx"
+fn get_path_to_write(root: &Path, name: &str, extension: &str, flat: bool) -> PathBuf {
+    let folder = if flat { "" } else { name };
+    root.join(folder).join(name.to_owned() + extension)
 }
 
-fn fill_template(template: String, component_name: &str) -> String {
+fn get_file_extension(mode: &str) -> &str {
+    match mode {
+        "component" => ".tsx",
+        "comp_test" => ".test.tsx",
+        "test" => ".test.ts",
+        _ => ".ts",
+    }
+}
+
+fn fill_template(template: &str, component_name: &str) -> String {
     template.replace("NAME", component_name)
 }
 
-fn write_file(filepath: &String, content: String) -> Result<()> {
-    let path = Path::new(filepath);
-    let mut file = File::create(path)?;
+fn write_file(filepath: &PathBuf, content: String) -> Result<()> {
+    let parent = filepath.parent().unwrap();
+    create_dir_all(parent)?;
+    let mut file = File::create(filepath)?;
     file.write_all(content.as_bytes())?;
-    Ok(())
-}
-
-pub fn create_test_file(component_name: &String, dir: &Option<String>) -> Result<()> {
-    let dir_name = get_base_dir(false, dir)?;
-    std::fs::create_dir_all(&dir_name)?;
-
-    let content = fill_template(templates::TEST.to_string(), component_name);
-    let filepath = get_test_filepath(component_name, &dir_name);
-    write_file(&filepath, content)?;
-
     Ok(())
 }
 
@@ -158,77 +109,51 @@ mod tests {
     use super::*;
 
     #[test]
-    fn test_get_component_filepath() {
-        let name = "Button".to_string();
-        let dir = "UI".to_string();
-        let component_path = get_component_filepath(&name, &dir);
-        assert_eq!(component_path, "UI/Button.tsx");
+    fn test_get_path_to_write_flat() {
+        let root = PathBuf::from(".");
+        let expected = PathBuf::from("./test.tsx");
+        assert_eq!(get_path_to_write(&root, "test", ".tsx", true), expected)
     }
 
     #[test]
-    fn test_get_component_nested_filepath() {
-        let name = "Button".to_string();
-        let dir = "UI/Buttons/Test".to_string();
-        let component_path = get_component_filepath(&name, &dir);
-        assert_eq!(component_path, "UI/Buttons/Test/Button.tsx");
+    fn test_get_path_to_write_not_flat() {
+        let root = PathBuf::from(".");
+        let expected = PathBuf::from("./test/test.tsx");
+        assert_eq!(get_path_to_write(&root, "test", ".tsx", false), expected)
     }
 
     #[test]
-    fn test_get_component_filepath_cwd() {
-        let name = "Button".to_string();
-        let dir = ".".to_string();
-        let component_path = get_component_filepath(&name, &dir);
-        assert_eq!(component_path, "./Button.tsx");
-    }
-
-    #[test]
-    fn test_get_test_filepath() {
-        let name = "Button".to_string();
-        let dir = "UI".to_string();
-        let test_path = get_test_filepath(&name, &dir);
-        assert_eq!(test_path, "UI/Button.test.tsx");
-    }
-
-    #[test]
-    fn test_get_test_nested_filepath() {
-        let name = "Button".to_string();
-        let dir = "UI/Buttons/Test".to_string();
-        let test_path = get_test_filepath(&name, &dir);
-        assert_eq!(test_path, "UI/Buttons/Test/Button.test.tsx");
-    }
-
-    #[test]
-    fn test_get_test_filepath_cwd() {
-        let name = "Button".to_string();
-        let dir = ".".to_string();
-        let test_path = get_test_filepath(&name, &dir);
-        assert_eq!(test_path, "./Button.test.tsx");
+    fn test_get_file_extension() {
+        assert_eq!(get_file_extension("component"), ".tsx");
+        assert_eq!(get_file_extension("comp_test"), ".test.tsx");
+        assert_eq!(get_file_extension("test"), ".test.ts");
+        assert_eq!(get_file_extension("anything"), ".ts");
     }
 
     #[test]
     fn test_fill_template() {
-        let template = "const NAME = test".to_string();
-        let name = "test".to_string();
-        let content = fill_template(template, &name);
+        let template = "const NAME = test";
+        let name = "test";
+        let content = fill_template(template, name);
         let expected = "const test = test".to_string();
         assert_eq!(content, expected);
     }
 
     #[test]
     fn test_fill_empty_template() {
-        let template = "".to_string();
-        let name = "test".to_string();
-        let content = fill_template(template, &name);
+        let template = "";
+        let name = "test";
+        let content = fill_template(template, name);
         let expected = "".to_string();
         assert_eq!(content, expected);
     }
 
     #[test]
     fn test_fill_template_no_replace_match() {
-        let template = "const COLOR = blue".to_string();
-        let name = "test".to_string();
-        let content = fill_template(template, &name);
-        let expected = "const COLOR = blue".to_string();
+        let template = "const COLOR = blue";
+        let name = "test";
+        let content = fill_template(template, name);
+        let expected = "const COLOR = blue";
         assert_eq!(content, expected);
     }
 }

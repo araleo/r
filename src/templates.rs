@@ -12,3 +12,20 @@ describe('NAME tests', () => {
   });
 });
 ";
+
+pub const HOOK: &str = "const NAME = () => {
+  return { };
+};
+
+export default NAME;
+";
+
+pub const HOOK_TEST: &str = "import { act, renderHook } from '@testing-library/react';
+import NAME from './NAME';
+
+describe('NAME hook tests', () => {
+  test('NAME inits ', () => {
+    const { result } = renderHook(() => NAME());
+  });
+});
+";
