@@ -2,6 +2,7 @@ mod os;
 mod templates;
 
 use anyhow::{anyhow, Ok, Result};
+use colored::Colorize;
 use std::{
     ffi::OsStr,
     fs::{create_dir_all, File},
@@ -13,11 +14,11 @@ use walkdir::{DirEntry, WalkDir};
 // TODO: run npm install eslint and its plugins
 // TODO: update eslint template to a reasonable one
 pub fn create_app(name: &str) -> Result<()> {
-    println!("Setting up a new Vite React App.");
+    println!("{}", "Setting up a new Vite React App.".bold().yellow());
     run_create_app_commands(name)?;
-    println!("Adding configuration files.");
+    println!("{}", "Adding configuration files.".bold().yellow());
     create_app_config_files(name)?;
-    println!("Done! Happy coding!");
+    println!("{}", "Done! Happy coding!".bold().green());
     Ok(())
 }
 
