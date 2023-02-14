@@ -1,3 +1,4 @@
+mod os;
 mod templates;
 
 use anyhow::{anyhow, Ok, Result};
@@ -8,6 +9,52 @@ use std::{
     path::{Path, PathBuf},
 };
 use walkdir::{DirEntry, WalkDir};
+
+// TODO: run npm install eslint and its plugins
+// TODO: update eslint template to a reasonable one
+pub fn create_app(name: &str) -> Result<()> {
+    println!("Setting up a new Vite React App.");
+    run_create_app_commands(name)?;
+    println!("Adding configuration files.");
+    create_app_config_files(name)?;
+    println!("Done! Happy coding!");
+    Ok(())
+}
+
+fn run_create_app_commands(app_name: &str) -> Result<()> {
+    let target_cli = os::get_os_cli();
+    let mut child_process = os::get_child_process(&target_cli);
+    let commands = get_create_app_commands(app_name);
+    os::run_command_on_child(&mut child_process, commands.as_bytes())?;
+    child_process.wait_with_output()?;
+    Ok(())
+}
+
+fn get_create_app_commands(app_name: &str) -> String {
+    let vite_command = fill_template(templates::VITE, app_name);
+    let cd_command = fill_template("cd ./NAME", app_name);
+    let npm_install = "npm install".to_string();
+    [vite_command, cd_command, npm_install].join("\n")
+}
+
+fn create_app_config_files(app_name: &str) -> Result<()> {
+    let app_folder = PathBuf::from(format!("./{app_name}")).canonicalize()?;
+    create_prettier_file(&app_folder)?;
+    create_eslint_file(&app_folder)?;
+    Ok(())
+}
+
+fn create_prettier_file(app_folder: &Path) -> Result<()> {
+    let filepath = app_folder.join(".prettierrc.json");
+    write_file(&filepath, templates::PRETTIER.to_string())?;
+    Ok(())
+}
+
+fn create_eslint_file(app_folder: &Path) -> Result<()> {
+    let filepath = app_folder.join(".eslintrc.js");
+    write_file(&filepath, templates::ESLINT.to_string())?;
+    Ok(())
+}
 
 pub fn create_component(name: &str, dir: Option<String>, test: bool, flat: bool) -> Result<()> {
     let root = get_base_path(".", "components", dir)?;
@@ -60,6 +107,7 @@ fn find_folder_by_pattern(root: PathBuf, pattern: &str) -> Result<PathBuf> {
         .filter_entry(|e| !is_ignored(e))
         .filter_map(|e| e.ok());
     for entry in walker {
+        println!("{entry:?}");
         if let Some(filename) = entry.path().file_name() {
             if filename == OsStr::new(pattern) {
                 return Ok(entry.path().canonicalize()?);

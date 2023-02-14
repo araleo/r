@@ -22,6 +22,7 @@ fn main() -> Result<()> {
     let args = Cli::parse();
 
     match args.command.as_str() {
+        "ca" => r::create_app(&args.name),
         "nc" => r::create_component(&args.name, args.dir, !args.skip_test, args.flat),
         "nh" => r::create_hook(&args.name, args.dir, !args.skip_test, args.flat),
         _ => {

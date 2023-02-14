@@ -29,3 +29,18 @@ describe('NAME hook tests', () => {
   });
 });
 ";
+
+pub const VITE: &str = "npm create vite@latest NAME -- --template=react-ts";
+
+pub const PRETTIER: &str = r#"{
+  "arrowParens": "avoid",
+  "endOfLine": "auto",
+  "jsxSingleQuote": true,
+  "printWidth": 80,
+  "semi": true,
+  "singleQuote": true,
+  "trailingComma": "es5",
+  "tabWidth": 2
+}"#;
+
+pub const ESLINT: &str = r#""#;
