@@ -26,7 +26,7 @@ fn main() -> Result<()> {
         "nc" => r::create_component(&args.name, args.dir, !args.skip_test, args.flat),
         "nh" => r::create_hook(&args.name, args.dir, !args.skip_test, args.flat),
         _ => {
-            eprintln!("ERROR: Available commands:\nnc: New component\nnh: New hook");
+            eprintln!("ERROR: Available commands:\nna: New app\nnc: New component\nnh: New hook");
             Ok(())
         }
     }?;

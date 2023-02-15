@@ -1,3 +1,4 @@
+mod constants;
 mod os;
 mod templates;
 
@@ -12,13 +13,12 @@ use std::{
 use walkdir::{DirEntry, WalkDir};
 
 // TODO: run npm install eslint and its plugins
-// TODO: update eslint template to a reasonable one
 pub fn create_app(name: &str) -> Result<()> {
     println!("{}", "Setting up a new Vite React App.".bold().yellow());
     run_create_app_commands(name)?;
     println!("{}", "Adding configuration files.".bold().yellow());
     create_app_config_files(name)?;
-    println!("{}", "Done! Happy coding!".bold().green());
+    println!("{}", "\n\nDone! Happy coding!".bold().green());
     Ok(())
 }
 
@@ -34,7 +34,7 @@ fn run_create_app_commands(app_name: &str) -> Result<()> {
 fn get_create_app_commands(app_name: &str) -> String {
     let vite_command = fill_template(templates::VITE, app_name);
     let cd_command = fill_template("cd ./NAME", app_name);
-    let npm_install = "npm install".to_string();
+    let npm_install = constants::NPM_I.to_string();
     [vite_command, cd_command, npm_install].join("\n")
 }
 
@@ -47,13 +47,13 @@ fn create_app_config_files(app_name: &str) -> Result<()> {
 
 fn create_prettier_file(app_folder: &Path) -> Result<()> {
     let filepath = app_folder.join(".prettierrc.json");
-    write_file(&filepath, templates::PRETTIER.to_string())?;
+    write_file(&filepath, constants::PRETTIER.to_string())?;
     Ok(())
 }
 
 fn create_eslint_file(app_folder: &Path) -> Result<()> {
     let filepath = app_folder.join(".eslintrc.js");
-    write_file(&filepath, templates::ESLINT.to_string())?;
+    write_file(&filepath, constants::ESLINT.to_string())?;
     Ok(())
 }
 
