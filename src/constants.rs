@@ -1,5 +1,4 @@
-pub const ESLINT: &str = r#"
-module.exports = {
+pub const ESLINT: &str = r#"module.exports = {
     env: {
       browser: true,
       es2020: true,
@@ -53,8 +52,8 @@ module.exports = {
 
 pub const NPM_I: &str = "npm install";
 
-pub const _NPM_I_ESLINT: &str =
-    "npm install -D prettier eslint eslint-plugin-react eslint-plugin-react-hooks";
+pub const NPM_I_DEPS: &str =
+    "npm install -D prettier eslint eslint-plugin-react eslint-plugin-react-hooks eslint-config-prettier";
 
 pub const PRETTIER: &str = r#"{
     "arrowParens": "avoid",

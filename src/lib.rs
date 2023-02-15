@@ -12,7 +12,6 @@ use std::{
 };
 use walkdir::{DirEntry, WalkDir};
 
-// TODO: run npm install eslint and its plugins
 pub fn create_app(name: &str) -> Result<()> {
     println!("{}", "Setting up a new Vite React App.".bold().yellow());
     run_create_app_commands(name)?;
@@ -32,10 +31,11 @@ fn run_create_app_commands(app_name: &str) -> Result<()> {
 }
 
 fn get_create_app_commands(app_name: &str) -> String {
-    let vite_command = fill_template(templates::VITE, app_name);
-    let cd_command = fill_template("cd ./NAME", app_name);
+    let vite = fill_template(templates::VITE, app_name);
+    let cd = fill_template("cd ./NAME", app_name);
     let npm_install = constants::NPM_I.to_string();
-    [vite_command, cd_command, npm_install].join("\n")
+    let install_dependencies = constants::NPM_I_DEPS.to_string();
+    [vite, cd, npm_install, install_dependencies].join("\n")
 }
 
 fn create_app_config_files(app_name: &str) -> Result<()> {
