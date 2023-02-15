@@ -39,9 +39,9 @@ fn get_create_app_commands(app_name: &str) -> String {
 }
 
 fn create_app_config_files(app_name: &str) -> Result<()> {
-    let app_folder = PathBuf::from(format!("./{app_name}")).canonicalize()?;
-    create_prettier_file(&app_folder)?;
-    create_eslint_file(&app_folder)?;
+    let app_folder = &PathBuf::from(format!("./{app_name}")).canonicalize()?;
+    create_prettier_file(app_folder)?;
+    create_eslint_file(app_folder)?;
     Ok(())
 }
 
