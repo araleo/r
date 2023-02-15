@@ -12,30 +12,38 @@ use std::{
 };
 use walkdir::{DirEntry, WalkDir};
 
-pub fn create_app(name: &str) -> Result<()> {
-    println!("{}", "Setting up a new Vite React App.".bold().yellow());
-    run_create_app_commands(name)?;
+pub fn create_app(name: &str, toolchain: String) -> Result<()> {
+    println!("{}", "Setting up a new React App.".bold().yellow());
+    run_create_app_commands(name, toolchain)?;
     println!("{}", "Adding configuration files.".bold().yellow());
     create_app_config_files(name)?;
     println!("{}", "\n\nDone! Happy coding!".bold().green());
     Ok(())
 }
 
-fn run_create_app_commands(app_name: &str) -> Result<()> {
+fn run_create_app_commands(app_name: &str, toolchain: String) -> Result<()> {
     let target_cli = os::get_os_cli();
     let mut child_process = os::get_child_process(&target_cli);
-    let commands = get_create_app_commands(app_name);
+    let commands = get_create_app_commands(app_name, toolchain);
     os::run_command_on_child(&mut child_process, commands.as_bytes())?;
     child_process.wait_with_output()?;
     Ok(())
 }
 
-fn get_create_app_commands(app_name: &str) -> String {
-    let vite = fill_template(templates::VITE, app_name);
+fn get_create_app_commands(app_name: &str, toolchain: String) -> String {
+    let toolchain_command = &get_toolchain_template(toolchain);
+    let app = fill_template(toolchain_command, app_name);
     let cd = fill_template("cd ./NAME", app_name);
     let npm_install = constants::NPM_I.to_string();
     let install_dependencies = constants::NPM_I_DEPS.to_string();
-    [vite, cd, npm_install, install_dependencies].join("\n")
+    [app, cd, npm_install, install_dependencies].join("\n")
+}
+
+fn get_toolchain_template(toolchain: String) -> String {
+    if toolchain == "cra" {
+        return templates::CRA.to_string();
+    }
+    templates::VITE.to_string()
 }
 
 fn create_app_config_files(app_name: &str) -> Result<()> {

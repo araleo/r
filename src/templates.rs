@@ -30,4 +30,6 @@ describe('NAME hook tests', () => {
 });
 ";
 
+pub const CRA: &str = "npx create-react-app NAME --template typescript";
+
 pub const VITE: &str = "npm create vite@latest NAME -- --template=react-ts";
