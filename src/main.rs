@@ -3,6 +3,7 @@ use clap::Parser;
 
 #[derive(Debug, Parser)]
 struct Cli {
+    #[arg(help = "Available commands: ca, nc, nh")]
     command: String,
 
     #[arg(short, long, help = "Name")]
