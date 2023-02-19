@@ -50,6 +50,8 @@ fn create_app_config_files(app_name: &str) -> Result<()> {
     let app_folder = &PathBuf::from(format!("./{app_name}")).canonicalize()?;
     create_prettier_file(app_folder)?;
     create_eslint_file(app_folder)?;
+    create_eslint_ignore_file(app_folder)?;
+    create_vscode_settings_and_snippets(app_folder)?;
     Ok(())
 }
 
@@ -62,6 +64,22 @@ fn create_prettier_file(app_folder: &Path) -> Result<()> {
 fn create_eslint_file(app_folder: &Path) -> Result<()> {
     let filepath = app_folder.join(".eslintrc.js");
     write_file(&filepath, constants::ESLINT.to_string())?;
+    Ok(())
+}
+
+fn create_eslint_ignore_file(app_folder: &Path) -> Result<()> {
+    let filepath = app_folder.join(".eslintignore");
+    write_file(&filepath, constants::ESLINT_IGNORE.to_string())?;
+    Ok(())
+}
+
+fn create_vscode_settings_and_snippets(app_folder: &Path) -> Result<()> {
+    let vscode_folder = app_folder.join(".vscode");
+    create_dir_all(vscode_folder.clone())?;
+    let settings_path = vscode_folder.join("settings.json");
+    write_file(&settings_path, constants::VSCODE_SETTINGS.to_string())?;
+    let snippets_path = vscode_folder.join("react.code-snippets");
+    write_file(&snippets_path, constants::VSCODE_SNIPPETS.to_string())?;
     Ok(())
 }
 

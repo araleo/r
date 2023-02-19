@@ -1,59 +1,82 @@
 pub const ESLINT: &str = r#"module.exports = {
-    env: {
-      browser: true,
-      es2020: true,
-      node: true,
-      jest: true,
+  env: {
+    browser: true,
+    es2020: true,
+    node: true,
+    jest: true,
+  },
+  extends: [
+    'eslint:recommended',
+    'plugin:@typescript-eslint/recommended',
+    'plugin:react/recommended',
+    'plugin:react/jsx-runtime',
+    'plugin:react-hooks/recommended',
+    'prettier',
+  ],
+  overrides: [
+    {
+      files: ['*.jsx', '*.tsx'],
+      excludedFiles: '*.test.*',
+      rules: {
+        'import/prefer-default-export': 1,
+      },
     },
-    extends: [
-      'eslint:recommended',
-      'plugin:@typescript-eslint/recommended',
-      'plugin:react/recommended',
-      'plugin:react/jsx-runtime',
-      'plugin:react-hooks/recommended',
-      'prettier',
+  ],
+  parser: '@typescript-eslint/parser',
+  parserOptions: {
+    ecmaFeatures: {
+      jsx: true,
+    },
+    ecmaVersion: 11,
+    sourceType: 'module',
+  },
+  plugins: ['@typescript-eslint', 'react', 'react-hooks', 'prettier', 'import'],
+  rules: {
+    'consistent-return': 0,
+    'import/export': 2,
+    'no-console': 1,
+    'no-nested-ternary': 0,
+    'no-param-reassign': 0,
+    'no-underscore-dangle': 0,
+    'prettier/prettier': 'error',
+    'react/jsx-filename-extension': [1, { extensions: ['.tsx', '.jsx'] }],
+    'react/jsx-props-no-spreading': 0,
+    'react/function-component-definition': [
+      2,
+      { namedComponents: 'arrow-function' },
     ],
-    parser: '@typescript-eslint/parser',
-    parserOptions: {
-      ecmaFeatures: {
-        jsx: true,
-      },
-      ecmaVersion: 11,
-      sourceType: 'module',
+    'react/require-default-props': 0,
+    'react-hooks/exhaustive-deps': 'warn',
+    'react-hooks/rules-of-hooks': 'error',
+  },
+  settings: {
+    'import/resolver': {
+      typescript: {},
     },
-    plugins: ['@typescript-eslint', 'react', 'react-hooks', 'prettier'],
-    rules: {
-      'prettier/prettier': 'error',
-      'react-hooks/rules-of-hooks': 'error',
-      'react-hooks/exhaustive-deps': 'warn',
-      'import/extensions': 0,
-      'react/jsx-filename-extension': [1, { extensions: ['.tsx', '.jsx'] }],
-      'no-console': [2, { allow: ['warn', 'error'] }],
-      'no-underscore-dangle': 0,
-      'consistent-return': 0,
-      'no-param-reassign': 0,
-      'no-nested-ternary': 0,
-      'react/jsx-props-no-spreading': 0,
-      'react/require-default-props': 0,
-      'react/function-component-definition': [
-        2,
-        { namedComponents: 'arrow-function' },
-      ],
+    react: {
+      version: 'detect',
     },
-    settings: {
-      'import/resolver': {
-        typescript: {},
-      },
-      react: {
-        version: 'detect',
-      },
-    },
-  };"#;
+  },
+};
+"#;
 
-pub const NPM_I: &str = "npm install";
+pub const ESLINT_IGNORE: &str = "*/.js
+build
+dist
+node_modules/
+.npm
+.eslintcache
+*.tgz
+.env
+.env.*
+.vscode/*
+.history/
+";
+
+pub const NPM_I: &str = "npm i";
 
 pub const NPM_I_DEPS: &str =
-    "npm install -D prettier eslint eslint-plugin-react eslint-plugin-react-hooks eslint-config-prettier";
+    "npm i -D prettier eslint eslint-plugin-react eslint-plugin-react-hooks eslint-config-prettier eslint-plugin-prettier eslint-import-resolver-typescript eslint-plugin-import";
 
 pub const PRETTIER: &str = r#"{
     "arrowParens": "avoid",
@@ -64,4 +87,89 @@ pub const PRETTIER: &str = r#"{
     "singleQuote": true,
     "trailingComma": "es5",
     "tabWidth": 2
-}"#;
+}
+"#;
+
+pub const VSCODE_SETTINGS: &str = r#"{
+  "editor.minimap.enabled": false,
+  "editor.mouseWheelZoom": true,
+  "editor.trimAutoWhitespace": true,
+  "files.trimTrailingWhitespace": true,
+  "editor.insertSpaces": true,
+  "[typescript]": {
+    "editor.formatOnSave": true,
+    "editor.tabSize": 2
+  },
+  "[typescriptreact]": {
+    "editor.formatOnSave": true,
+    "editor.tabSize": 2
+  },
+  "[javascript]": {
+    "editor.formatOnSave": true,
+    "editor.tabSize": 2
+  },
+  "[javascriptreact]": {
+    "editor.formatOnSave": true,
+    "editor.tabSize": 2
+  }
+}
+"#;
+
+pub const VSCODE_SNIPPETS: &str = r#"{
+  "React TS useState": {
+    "scope": "typescript,typescriptreact",
+    "prefix": "us",
+    "body": [
+      "const [${1}, set${1/(.*)/${1:/capitalize}/}] = useState<${2}>(${3});"
+    ],
+    "description": "React's useState with TypeScript syntax"
+  },
+  "React TS useEffect": {
+    "scope": "typescript,typescriptreact",
+    "prefix": "ue",
+    "body": ["useEffect(() => {${1}}, []);"],
+    "description": "React's useEffect with TypeScript syntax"
+  },
+  "React TS new functional component": {
+    "scope": "typescript,typescriptreact",
+    "prefix": "rnfc",
+    "body": ["const ${1} = () => {};", "", "export default ${1};"],
+    "description": "React's useState with TypeScript syntax"
+  },
+  "New arrow function": {
+    "scope": "typescript,typescriptreact",
+    "prefix": "naf",
+    "body": ["const ${1} = () => {};"],
+    "description": "New arrow function"
+  },
+  "Jest new file": {
+    "scope": "typescript,typescriptreact",
+    "prefix": "jnf",
+    "body": ["describe('${1}', () => {", "  test('${2}', () => {});", "});"],
+    "description": "Jest new test file with describe and empty test"
+  },
+  "Jest new react file": {
+    "prefix": "jnrf",
+    "body": [
+      "import { render, screen } from '@testing-library/react';",
+      "",
+      "describe('${1}', () => {",
+      "  test('${2}', () => {});",
+      "});"
+    ],
+    "description": "Jest react test file with imports, describe and empty test"
+  },
+  "Jest new test": {
+    "scope": "typescript,typescriptreact",
+    "prefix": "jnt",
+    "body": ["test('${1}', () => {});"],
+    "description": "Jest new test function with describe and empty test"
+  },
+  "Jest new async test": {
+    "scope": "typescript,typescriptreact",
+    "prefix": "jnat",
+    "body": ["test('${1}', async () => {});"],
+    "description": "Jest new async test function with describe and empty test"
+  }
+}
+"#;
