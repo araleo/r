@@ -134,7 +134,6 @@ fn find_folder_by_pattern(root: PathBuf, pattern: &str) -> Result<PathBuf> {
         .filter_entry(|e| !is_ignored(e))
         .filter_map(|e| e.ok());
     for entry in walker {
-        println!("{entry:?}");
         if let Some(filename) = entry.path().file_name() {
             if filename == OsStr::new(pattern) {
                 return Ok(entry.path().canonicalize()?);
@@ -149,7 +148,7 @@ fn is_ignored(entry: &DirEntry) -> bool {
     entry
         .file_name()
         .to_str()
-        .map(|s| s.starts_with('.') || ignore.contains(&s))
+        .map(|s| ignore.contains(&s))
         .unwrap_or(false)
 }
 
