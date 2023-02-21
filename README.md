@@ -9,10 +9,14 @@ R is a CLI to automate some of my React workflow.
 - [x] Creates a new hook
 - [x] Creates a new test file
 - [x] Finds the components/hooks folder automatically
+- [x] Adds eslint and prettier to an existing app
+- [x] Adds vscode settings and snippets to an existing app
 
 ## Quickstart
 
 To create a new react app with vite or cra, eslint and prettier:
+
+You can ommit the -t option and r will use vite as the default toolchain.
 
 ```
 r ca -n <name> -t <toolchain>
@@ -42,16 +46,39 @@ To create a new hook in a subdirectory of the hooks folder and in it's own subfo
 r nh -n <name> -d <dir>
 ```
 
+To add eslint to an existing app (command must be used at the app's root folder)
+
+```
+r eslint
+```
+
+To add vscode settings and snippets to an existing app (command must be used at the app's root folder)
+
+```
+r vscode
+```
+
+To add eslint and vscode settings and snippets to an existing app (command must be used at the app's root folder)
+
+```
+r lc
+```
+
 ### Available commands
 
-- ca: creates a new react app with vite or cra
-- nc: creates a new functional component
-- nh: creates a new hook
+- ca: New App (create app)
+- nc: New component (new component)
+- nh: New hook (new hook)
+- lc: Adds eslint and vscode settings and snippets to an existing app (lint and code)
+- eslint: Adds eslint to an existing app (eslint)
+- vscode: Adds vscode settings and snippets to an existing app (vscode)
 
 ### Available options
 
-- -n --name: Name of the component / hook / test file
+- -n --name: Name of the app / component / hook file
 - -d --dir: Target directory
+- -r --root: Overrides the base directory to be used (defaults to components or hooks)
+- -t --toolchain: Specifies the toolchain to be used when creating a new app (defaults to vite)
 
 ### Available flags
 

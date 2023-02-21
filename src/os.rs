@@ -5,6 +5,14 @@ use std::{
     process::{Child, Command, Stdio},
 };
 
+pub fn run_commands(commands: String) -> Result<()> {
+    let target_cli = get_os_cli();
+    let mut child_process = get_child_process(&target_cli);
+    run_command_on_child(&mut child_process, commands.as_bytes())?;
+    child_process.wait_with_output()?;
+    Ok(())
+}
+
 pub fn get_os_cli() -> String {
     let target_os = env::consts::OS;
     if target_os == "windows" {

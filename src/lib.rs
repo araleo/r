@@ -1,4 +1,4 @@
-mod constants;
+pub mod constants;
 mod os;
 mod templates;
 
@@ -22,11 +22,8 @@ pub fn create_app(name: &str, toolchain: String) -> Result<()> {
 }
 
 fn run_create_app_commands(app_name: &str, toolchain: String) -> Result<()> {
-    let target_cli = os::get_os_cli();
-    let mut child_process = os::get_child_process(&target_cli);
     let commands = get_create_app_commands(app_name, toolchain);
-    os::run_command_on_child(&mut child_process, commands.as_bytes())?;
-    child_process.wait_with_output()?;
+    os::run_commands(commands)?;
     Ok(())
 }
 
@@ -40,10 +37,11 @@ fn get_create_app_commands(app_name: &str, toolchain: String) -> String {
 }
 
 fn get_toolchain_template(toolchain: String) -> String {
-    if toolchain == "cra" {
-        return templates::CRA.to_string();
+    match toolchain.as_str() {
+        "cra" => templates::CRA.to_string(),
+        "vite" => templates::VITE.to_string(),
+        _ => templates::VITE.to_string(),
     }
-    templates::VITE.to_string()
 }
 
 fn create_app_config_files(app_name: &str) -> Result<()> {
@@ -83,14 +81,21 @@ fn create_vscode_settings_and_snippets(app_folder: &Path) -> Result<()> {
     Ok(())
 }
 
-pub fn create_component(name: &str, dir: Option<String>, test: bool, flat: bool) -> Result<()> {
-    let root = get_base_path(".", "components", dir)?;
+pub fn create_component(
+    name: &str,
+    dir: Option<String>,
+    root: Option<String>,
+    test: bool,
+    flat: bool,
+) -> Result<()> {
+    let root_name = root.unwrap_or("components".to_string());
+    let root_path = &get_base_path(".", &root_name, dir)?;
     let extension = get_file_extension("component");
-    let path = get_path_to_write(&root, name, extension, flat);
+    let path = get_path_to_write(root_path, name, extension, flat);
     let template = fill_template(templates::COMPONENT, name);
     write_file(&path, template)?;
     if test {
-        create_component_test(&root, name, flat)?;
+        create_component_test(root_path, name, flat)?;
     }
     Ok(())
 }
@@ -103,14 +108,21 @@ fn create_component_test(root: &Path, name: &str, flat: bool) -> Result<()> {
     Ok(())
 }
 
-pub fn create_hook(name: &str, dir: Option<String>, test: bool, flat: bool) -> Result<()> {
-    let root = get_base_path(".", "hooks", dir)?;
+pub fn create_hook(
+    name: &str,
+    dir: Option<String>,
+    root: Option<String>,
+    test: bool,
+    flat: bool,
+) -> Result<()> {
+    let root_name = root.unwrap_or("hooks".to_string());
+    let root_path = &get_base_path(".", &root_name, dir)?;
     let extension = get_file_extension("hook");
-    let path = get_path_to_write(&root, name, extension, flat);
+    let path = get_path_to_write(root_path, name, extension, flat);
     let template = fill_template(templates::HOOK, name);
     write_file(&path, template)?;
     if test {
-        create_hook_test(&root, name, flat)?;
+        create_hook_test(root_path, name, flat)?;
     }
     Ok(())
 }
@@ -120,6 +132,33 @@ fn create_hook_test(root: &Path, name: &str, flat: bool) -> Result<()> {
     let test_path = get_path_to_write(root, name, test_extension, flat);
     let test_template = fill_template(templates::HOOK_TEST, name);
     write_file(&test_path, test_template)?;
+    Ok(())
+}
+
+pub fn add_lint_and_code() -> Result<()> {
+    add_eslint()?;
+    add_vscode()?;
+    Ok(())
+}
+
+pub fn add_eslint() -> Result<()> {
+    let install_deps_command = constants::NPM_I_DEPS.to_string();
+    os::run_commands(install_deps_command)?;
+    let app_folder = &PathBuf::from(".").canonicalize()?;
+    create_prettier_file(app_folder)?;
+    create_eslint_file(app_folder)?;
+    create_eslint_ignore_file(app_folder)?;
+    Ok(())
+}
+
+pub fn add_vscode() -> Result<()> {
+    let app_folder = &PathBuf::from(".").canonicalize()?;
+    let vscode_folder = app_folder.join(".vscode");
+    create_dir_all(vscode_folder.clone())?;
+    let settings_path = vscode_folder.join("settings.json");
+    write_file(&settings_path, constants::VSCODE_SETTINGS.to_string())?;
+    let snippets_path = vscode_folder.join("react.code-snippets");
+    write_file(&snippets_path, constants::VSCODE_SNIPPETS.to_string())?;
     Ok(())
 }
 
