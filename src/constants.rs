@@ -85,8 +85,20 @@ node_modules/
 
 pub const NPM_I: &str = "npm i";
 
-pub const NPM_I_DEPS: &str =
-    "npm i -D prettier eslint eslint-plugin-react eslint-plugin-react-hooks eslint-config-prettier eslint-plugin-prettier eslint-import-resolver-typescript eslint-plugin-import eslint-plugin-jest";
+pub const NPM_I_DEV: &str = "npm i -D";
+
+pub const DEPENDENCIES: [&str; 10] = [
+    "prettier",
+    "eslint",
+    "eslint-plugin-react",
+    "eslint-plugin-react-hooks",
+    "eslint-config-prettier",
+    "eslint-plugin-prettier",
+    "eslint-import-resolver-typescript",
+    "eslint-plugin-import",
+    "eslint-plugin-jest",
+    "@typescript-eslint/eslint-plugin",
+];
 
 pub const PRETTIER: &str = r#"{
     "arrowParens": "avoid",

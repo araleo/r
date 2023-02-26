@@ -32,7 +32,7 @@ fn get_create_app_commands(app_name: &str, toolchain: String) -> String {
     let app = fill_template(toolchain_command, app_name);
     let cd = fill_template("cd ./NAME", app_name);
     let npm_install = get_app_install_command(toolchain);
-    let install_dependencies = constants::NPM_I_DEPS.to_string();
+    let install_dependencies = get_app_install_deps_command();
     [app, cd, npm_install, install_dependencies].join("\n")
 }
 
@@ -50,6 +50,12 @@ fn get_app_install_command(toolchain: String) -> String {
     } else {
         "".to_string()
     }
+}
+
+fn get_app_install_deps_command() -> String {
+    let npm_install = constants::NPM_I_DEV.to_string();
+    let dependencies = constants::DEPENDENCIES.join(" ");
+    npm_install + &dependencies
 }
 
 fn create_app_config_files(app_name: &str) -> Result<()> {
@@ -150,7 +156,7 @@ pub fn add_lint_and_code() -> Result<()> {
 }
 
 pub fn add_eslint() -> Result<()> {
-    let install_deps_command = constants::NPM_I_DEPS.to_string();
+    let install_deps_command = get_app_install_deps_command();
     os::run_commands(install_deps_command)?;
     let app_folder = &PathBuf::from(".").canonicalize()?;
     create_prettier_file(app_folder)?;
