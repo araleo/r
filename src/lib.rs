@@ -21,7 +21,7 @@ pub fn create_app(name: &str, toolchain: String, libraries: String) -> Result<()
     }
     println!("{}", "Adding configuration files.".bold().yellow());
     create_app_config_files(name)?;
-    println!("{}", "\n\nDone! Happy coding!".bold().green());
+    println!("{}", "\n\nDone! Happy coding!\n\n".bold().green());
     Ok(())
 }
 
@@ -46,6 +46,13 @@ fn get_toolchain_template(toolchain: String) -> String {
         "vite" => templates::VITE.to_string(),
         _ => templates::VITE.to_string(),
     }
+}
+
+fn install_libraries(libraries: String) -> Result<()> {
+    let libraries = libraries.replace(',', " ");
+    let command = format!("npm i {libraries}");
+    os::run_commands(command)?;
+    Ok(())
 }
 
 fn create_app_config_files(app_name: &str) -> Result<()> {
@@ -163,13 +170,6 @@ pub fn add_vscode() -> Result<()> {
     write_file(&settings_path, constants::VSCODE_SETTINGS.to_string())?;
     let snippets_path = vscode_folder.join("react.code-snippets");
     write_file(&snippets_path, constants::VSCODE_SNIPPETS.to_string())?;
-    Ok(())
-}
-
-pub fn install_libraries(libraries: String) -> Result<()> {
-    let libraries = libraries.replace(',', " ");
-    let command = format!("npm i {libraries}");
-    os::run_commands(command)?;
     Ok(())
 }
 

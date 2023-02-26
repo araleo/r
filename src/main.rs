@@ -19,11 +19,7 @@ struct Cli {
     #[arg(short, long, help = "Toolchain to create a new app")]
     toolchain: Option<String>,
 
-    #[arg(
-        short,
-        long,
-        help = "Libraries to install. Must be a comma separated string"
-    )]
+    #[arg(short, long, help = "Comma separated string of libraries to install")]
     extensions: Option<String>,
 
     #[arg(short, long, help = "Skip test file")]
@@ -49,7 +45,6 @@ fn main() -> Result<()> {
         "lc" => r::add_lint_and_code(),
         "eslint" => r::add_eslint(),
         "vscode" => r::add_vscode(),
-        "lib" => r::install_libraries(libraries),
         _ => command_error(),
     }?;
 
