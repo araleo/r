@@ -187,7 +187,8 @@ fn find_folder_by_pattern(root: PathBuf, pattern: &str) -> Result<PathBuf> {
             }
         }
     }
-    return Err(anyhow!("Pattern not found"));
+    let error_message = format!("ERROR: Could not find the {pattern} folder");
+    Err(anyhow!(error_message))
 }
 
 fn is_ignored(entry: &DirEntry) -> bool {
