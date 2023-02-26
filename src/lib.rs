@@ -12,9 +12,13 @@ use std::{
 };
 use walkdir::{DirEntry, WalkDir};
 
-pub fn create_app(name: &str, toolchain: String) -> Result<()> {
+pub fn create_app(name: &str, toolchain: String, libraries: String) -> Result<()> {
     println!("{}", "Setting up a new React App.".bold().yellow());
     run_create_app_commands(name, toolchain)?;
+    if !libraries.is_empty() {
+        println!("{}", "Installing libraries.".bold().yellow());
+        install_libraries(libraries)?;
+    }
     println!("{}", "Adding configuration files.".bold().yellow());
     create_app_config_files(name)?;
     println!("{}", "\n\nDone! Happy coding!".bold().green());
@@ -159,6 +163,13 @@ pub fn add_vscode() -> Result<()> {
     write_file(&settings_path, constants::VSCODE_SETTINGS.to_string())?;
     let snippets_path = vscode_folder.join("react.code-snippets");
     write_file(&snippets_path, constants::VSCODE_SNIPPETS.to_string())?;
+    Ok(())
+}
+
+pub fn install_libraries(libraries: String) -> Result<()> {
+    let libraries = libraries.replace(',', " ");
+    let command = format!("npm i {libraries}");
+    os::run_commands(command)?;
     Ok(())
 }
 
