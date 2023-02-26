@@ -12,13 +12,9 @@ use std::{
 };
 use walkdir::{DirEntry, WalkDir};
 
-pub fn create_app(name: &str, toolchain: String, libraries: String) -> Result<()> {
+pub fn create_app(name: &str, toolchain: String) -> Result<()> {
     println!("{}", "Setting up a new React App.".bold().yellow());
     run_create_app_commands(name, toolchain)?;
-    if !libraries.is_empty() {
-        println!("{}", "Installing libraries.".bold().yellow());
-        install_libraries(libraries)?;
-    }
     println!("{}", "Adding configuration files.".bold().yellow());
     create_app_config_files(name)?;
     println!("{}", "\n\nDone! Happy coding!\n\n".bold().green());
@@ -32,27 +28,28 @@ fn run_create_app_commands(app_name: &str, toolchain: String) -> Result<()> {
 }
 
 fn get_create_app_commands(app_name: &str, toolchain: String) -> String {
-    let toolchain_command = &get_toolchain_template(toolchain);
+    let toolchain_command = &get_toolchain_template(&toolchain);
     let app = fill_template(toolchain_command, app_name);
     let cd = fill_template("cd ./NAME", app_name);
-    let npm_install = constants::NPM_I.to_string();
+    let npm_install = get_app_install_command(toolchain);
     let install_dependencies = constants::NPM_I_DEPS.to_string();
     [app, cd, npm_install, install_dependencies].join("\n")
 }
 
-fn get_toolchain_template(toolchain: String) -> String {
-    match toolchain.as_str() {
+fn get_toolchain_template(toolchain: &str) -> String {
+    match toolchain {
         "cra" => templates::CRA.to_string(),
         "vite" => templates::VITE.to_string(),
         _ => templates::VITE.to_string(),
     }
 }
 
-fn install_libraries(libraries: String) -> Result<()> {
-    let libraries = libraries.replace(',', " ");
-    let command = format!("npm i {libraries}");
-    os::run_commands(command)?;
-    Ok(())
+fn get_app_install_command(toolchain: String) -> String {
+    if toolchain == "vite" {
+        constants::NPM_I.to_string()
+    } else {
+        "".to_string()
+    }
 }
 
 fn create_app_config_files(app_name: &str) -> Result<()> {

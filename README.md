@@ -11,16 +11,17 @@ R is a CLI to automate some of my React workflow.
 - [x] Finds the components/hooks folder automatically
 - [x] Adds eslint and prettier to an existing app
 - [x] Adds vscode settings and snippets to an existing app
+- [ ] Inits storybook in a created app
 - [ ] Yarn support
 
 ## Quickstart
 
 To create a new react app with vite or cra, eslint and prettier:
 
-You can ommit the -t option and r will use vite as the default toolchain. -e flag will install aditional libraries that should be passed as a comma separated string.
+You can ommit the -t option and r will use vite as the default toolchain.
 
 ```
-r ca -n <name> -t <toolchain> -e <extensions>
+r ca -n <name> -t <toolchain>
 ```
 
 To create a new functional component in the components folder and in it's own subfolder
@@ -80,7 +81,6 @@ r lc
 - -d --dir: Target directory
 - -r --root: Overrides the base directory to be used (defaults to components or hooks)
 - -t --toolchain: Specifies the toolchain to be used when creating a new app (defaults to vite)
-- -e --extensions: Libraries to be installed when creating a new app
 
 ### Available flags
 

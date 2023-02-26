@@ -19,9 +19,6 @@ struct Cli {
     #[arg(short, long, help = "Toolchain to create a new app")]
     toolchain: Option<String>,
 
-    #[arg(short, long, help = "Comma separated string of libraries to install")]
-    extensions: Option<String>,
-
     #[arg(short, long, help = "Skip test file")]
     skip_test: bool,
 
@@ -34,12 +31,11 @@ fn main() -> Result<()> {
     let command = args.command.as_str();
     let name = args.name.unwrap_or("".to_string());
     let toolchain = args.toolchain.unwrap_or("".to_string());
-    let libraries = args.extensions.unwrap_or("".to_string());
 
     check_name(&name, command);
 
     match command {
-        "ca" => r::create_app(&name, toolchain, libraries),
+        "ca" => r::create_app(&name, toolchain),
         "nc" => r::create_component(&name, args.dir, args.root, !args.skip_test, args.flat),
         "nh" => r::create_hook(&name, args.dir, args.root, !args.skip_test, args.flat),
         "lc" => r::add_lint_and_code(),
