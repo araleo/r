@@ -59,48 +59,18 @@ fn get_app_install_deps_command() -> String {
 
 fn create_app_config_files(app_name: &str) -> Result<()> {
     let app_folder = &PathBuf::from(format!("./{app_name}")).canonicalize()?;
-    create_prettier_file(app_folder)?;
-    create_eslint_file(app_folder)?;
-    create_eslint_ignore_file(app_folder)?;
+    os::create_prettier_file(app_folder)?;
+    os::create_eslint_file(app_folder)?;
+    os::create_eslint_ignore_file(app_folder)?;
     create_vscode_settings_and_snippets(app_folder)?;
-    Ok(())
-}
-
-fn create_prettier_file(app_folder: &Path) -> Result<()> {
-    let filepath = app_folder.join(".prettierrc.json");
-    os::write_file(&filepath, constants::prettier::get_config())?;
-    Ok(())
-}
-
-fn create_eslint_file(app_folder: &Path) -> Result<()> {
-    let filepath = app_folder.join(".eslintrc.cjs");
-    os::write_file(&filepath, constants::eslint::get_config())?;
-    Ok(())
-}
-
-fn create_eslint_ignore_file(app_folder: &Path) -> Result<()> {
-    let filepath = app_folder.join(".eslintignore");
-    os::write_file(&filepath, constants::eslint::get_ignore())?;
-    Ok(())
-}
-
-fn create_vscode_settings(vscode_folder: &Path) -> Result<()> {
-    let filepath = vscode_folder.join("settings.json");
-    os::write_file(&filepath, constants::vscode::get_settings())?;
-    Ok(())
-}
-
-fn create_vscode_snippets(vscode_folder: &Path) -> Result<()> {
-    let filepath = vscode_folder.join("react.code-snippets.json");
-    os::write_file(&filepath, constants::vscode::get_snippets())?;
     Ok(())
 }
 
 fn create_vscode_settings_and_snippets(app_folder: &Path) -> Result<()> {
     let vscode_folder = app_folder.join(".vscode");
     create_dir_all(vscode_folder.clone())?;
-    create_vscode_settings(&vscode_folder)?;
-    create_vscode_snippets(&vscode_folder)?;
+    os::create_vscode_settings(&vscode_folder)?;
+    os::create_vscode_snippets(&vscode_folder)?;
     Ok(())
 }
 
@@ -168,20 +138,15 @@ pub fn add_eslint() -> Result<()> {
     let install_deps_command = get_app_install_deps_command();
     os::run_commands(install_deps_command)?;
     let app_folder = &PathBuf::from(".").canonicalize()?;
-    create_prettier_file(app_folder)?;
-    create_eslint_file(app_folder)?;
-    create_eslint_ignore_file(app_folder)?;
+    os::create_prettier_file(app_folder)?;
+    os::create_eslint_file(app_folder)?;
+    os::create_eslint_ignore_file(app_folder)?;
     Ok(())
 }
 
 pub fn add_vscode() -> Result<()> {
     let app_folder = &PathBuf::from(".").canonicalize()?;
-    let vscode_folder = app_folder.join(".vscode");
-    create_dir_all(vscode_folder.clone())?;
-    let settings_path = vscode_folder.join("settings.json");
-    os::write_file(&settings_path, constants::vscode::get_settings())?;
-    let snippets_path = vscode_folder.join("react.code-snippets");
-    os::write_file(&snippets_path, constants::vscode::get_snippets())?;
+    create_vscode_settings_and_snippets(app_folder)?;
     Ok(())
 }
 
