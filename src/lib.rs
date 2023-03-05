@@ -45,15 +45,15 @@ fn get_toolchain_template(toolchain: &str) -> String {
 
 fn get_app_install_command(toolchain: String) -> String {
     if toolchain == "vite" {
-        constants::NPM_I.to_string()
+        constants::dependencies::NPM_I.to_string()
     } else {
         "".to_string()
     }
 }
 
 fn get_app_install_deps_command() -> String {
-    let npm_install = constants::NPM_I_DEV.to_string();
-    let dependencies = constants::DEPENDENCIES.join(" ");
+    let npm_install = constants::dependencies::NPM_I_DEV.to_string();
+    let dependencies = constants::dependencies::DEPENDENCIES.join(" ");
     npm_install + " " + &dependencies
 }
 
@@ -68,29 +68,39 @@ fn create_app_config_files(app_name: &str) -> Result<()> {
 
 fn create_prettier_file(app_folder: &Path) -> Result<()> {
     let filepath = app_folder.join(".prettierrc.json");
-    os::write_file(&filepath, constants::PRETTIER.to_string())?;
+    os::write_file(&filepath, constants::prettier::get_config())?;
     Ok(())
 }
 
 fn create_eslint_file(app_folder: &Path) -> Result<()> {
     let filepath = app_folder.join(".eslintrc.cjs");
-    os::write_file(&filepath, constants::ESLINT.to_string())?;
+    os::write_file(&filepath, constants::eslint::get_config())?;
     Ok(())
 }
 
 fn create_eslint_ignore_file(app_folder: &Path) -> Result<()> {
     let filepath = app_folder.join(".eslintignore");
-    os::write_file(&filepath, constants::ESLINT_IGNORE.to_string())?;
+    os::write_file(&filepath, constants::eslint::get_ignore())?;
+    Ok(())
+}
+
+fn create_vscode_settings(vscode_folder: &Path) -> Result<()> {
+    let filepath = vscode_folder.join("settings.json");
+    os::write_file(&filepath, constants::vscode::get_settings())?;
+    Ok(())
+}
+
+fn create_vscode_snippets(vscode_folder: &Path) -> Result<()> {
+    let filepath = vscode_folder.join("react.code-snippets.json");
+    os::write_file(&filepath, constants::vscode::get_snippets())?;
     Ok(())
 }
 
 fn create_vscode_settings_and_snippets(app_folder: &Path) -> Result<()> {
     let vscode_folder = app_folder.join(".vscode");
     create_dir_all(vscode_folder.clone())?;
-    let settings_path = vscode_folder.join("settings.json");
-    os::write_file(&settings_path, constants::VSCODE_SETTINGS.to_string())?;
-    let snippets_path = vscode_folder.join("react.code-snippets");
-    os::write_file(&snippets_path, constants::VSCODE_SNIPPETS.to_string())?;
+    create_vscode_settings(&vscode_folder)?;
+    create_vscode_snippets(&vscode_folder)?;
     Ok(())
 }
 
@@ -169,9 +179,9 @@ pub fn add_vscode() -> Result<()> {
     let vscode_folder = app_folder.join(".vscode");
     create_dir_all(vscode_folder.clone())?;
     let settings_path = vscode_folder.join("settings.json");
-    os::write_file(&settings_path, constants::VSCODE_SETTINGS.to_string())?;
+    os::write_file(&settings_path, constants::vscode::get_settings())?;
     let snippets_path = vscode_folder.join("react.code-snippets");
-    os::write_file(&snippets_path, constants::VSCODE_SNIPPETS.to_string())?;
+    os::write_file(&snippets_path, constants::vscode::get_snippets())?;
     Ok(())
 }
 

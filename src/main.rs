@@ -1,4 +1,6 @@
-use anyhow::Result;
+mod profile;
+
+use anyhow::{anyhow, Ok, Result};
 use clap::Parser;
 use r::constants;
 
@@ -19,6 +21,9 @@ struct Cli {
     #[arg(short, long, help = "Toolchain to create a new app")]
     toolchain: Option<String>,
 
+    #[arg(short, long, help = "Which profile to use for configuration files")]
+    profile: Option<String>,
+
     #[arg(short, long, help = "Skip test file")]
     skip_test: bool,
 
@@ -28,14 +33,21 @@ struct Cli {
 
 fn main() -> Result<()> {
     let args = Cli::parse();
+
+    let config_dir = profile::get_config_dir()?;
+    let profile_name = args
+        .profile
+        .unwrap_or(constants::DEFAULT_PROFILE.to_string());
+    let profile_dir = profile::get_profile_dir(config_dir, &profile_name);
+
     let command = args.command.as_str();
     let name = args.name.unwrap_or("".to_string());
+    check_name(&name, command)?;
+
     let toolchain = args.toolchain.unwrap_or("".to_string());
 
-    check_name(&name, command);
-
     match command {
-        "ca" => r::create_app(&name, toolchain),
+        "na" => r::create_app(&name, toolchain),
         "nc" => r::create_component(&name, args.dir, args.root, !args.skip_test, args.flat),
         "nh" => r::create_hook(&name, args.dir, args.root, !args.skip_test, args.flat),
         "lc" => r::add_lint_and_code(),
@@ -47,14 +59,14 @@ fn main() -> Result<()> {
     Ok(())
 }
 
-fn check_name(name: &String, command: &str) {
-    let commands_with_name = vec!["ca", "nc", "nh"];
+fn check_name(name: &String, command: &str) -> Result<()> {
+    let commands_with_name = vec!["na", "nc", "nh"];
     if name.is_empty() && commands_with_name.contains(&command) {
-        eprintln!(
+        return Err(anyhow!(
             "ERROR: {command} command needs a name. Please provide it with the --name or -n option"
-        );
-        std::process::exit(1);
+        ));
     }
+    Ok(())
 }
 
 fn command_error() -> Result<()> {
