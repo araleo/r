@@ -16,8 +16,7 @@ pub fn run_commands(commands: String) -> Result<()> {
 }
 
 pub fn get_os_cli() -> String {
-    let target_os = env::consts::OS;
-    match target_os {
+    match env::consts::OS {
         "windows" => "powershell".to_string(),
         _ => "sh".to_string(),
     }
