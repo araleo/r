@@ -12,7 +12,12 @@ R is a CLI to automate some of my React workflow.
 - [x] Adds eslint and prettier to an existing app
 - [x] Adds vscode settings and snippets to an existing app
 - [ ] Inits storybook in a created app
+- [ ] Adds components library to created app (styled components, mui, etc)
 - [ ] Yarn support
+- [ ] Full Vite + Vitest support
+- [ ] Supports different profiles for configuration files and dependencies (eg. work, personal)
+- [ ] Create new profiles using the CLI
+- [ ] Parsers eslint file to figure out which dependencies to install
 
 ## Quickstart
 
