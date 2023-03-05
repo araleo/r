@@ -46,32 +46,32 @@ pub fn write_file(filepath: &PathBuf, content: String) -> Result<()> {
     Ok(())
 }
 
-pub fn create_prettier_file(app_folder: &Path) -> Result<()> {
-    let filepath = app_folder.join(".prettierrc.json");
+pub fn create_prettier_file(dir: &Path) -> Result<()> {
+    let filepath = dir.join(".prettierrc.json");
     write_file(&filepath, constants::prettier::get_config())?;
     Ok(())
 }
 
-pub fn create_eslint_file(app_folder: &Path) -> Result<()> {
-    let filepath = app_folder.join(".eslintrc.cjs");
+pub fn create_eslint_file(dir: &Path) -> Result<()> {
+    let filepath = dir.join(".eslintrc.cjs");
     write_file(&filepath, constants::eslint::get_config())?;
     Ok(())
 }
 
-pub fn create_eslint_ignore_file(app_folder: &Path) -> Result<()> {
-    let filepath = app_folder.join(".eslintignore");
+pub fn create_eslint_ignore_file(dir: &Path) -> Result<()> {
+    let filepath = dir.join(".eslintignore");
     write_file(&filepath, constants::eslint::get_ignore())?;
     Ok(())
 }
 
-pub fn create_vscode_settings(vscode_folder: &Path) -> Result<()> {
-    let filepath = vscode_folder.join("settings.json");
+pub fn create_vscode_settings(dir: &Path) -> Result<()> {
+    let filepath = dir.join("settings.json");
     write_file(&filepath, constants::vscode::get_settings())?;
     Ok(())
 }
 
-pub fn create_vscode_snippets(vscode_folder: &Path) -> Result<()> {
-    let filepath = vscode_folder.join("react.code-snippets.json");
+pub fn create_vscode_snippets(dir: &Path) -> Result<()> {
+    let filepath = dir.join("react.code-snippets.json");
     write_file(&filepath, constants::vscode::get_snippets())?;
     Ok(())
 }
