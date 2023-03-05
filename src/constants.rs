@@ -1,5 +1,5 @@
 pub const COMMANDS_HELPER: &str = "Available commands:
-ca: New App (create app)
+na: New App (new app)
 nc: New component (new component)
 nh: New hook (new hook)
 lc: Adds eslint and vscode settings and snippets to an existing app (lint and code)
@@ -7,7 +7,7 @@ eslint: Adds eslint to an existing app (eslint)
 vscode: Adds vscode settings and snippets to an existing app (vscode)
 ";
 
-pub const ESLINT: &str = r#"module.exports = {
+pub const ESLINT: &str = "module.exports = {
   env: {
     browser: true,
     es2020: true,
@@ -20,7 +20,8 @@ pub const ESLINT: &str = r#"module.exports = {
     'plugin:react/recommended',
     'plugin:react/jsx-runtime',
     'plugin:react-hooks/recommended',
-    'plugin:jest',
+    'plugin:jest/recommended',
+    'plugin:jest/style',
     'prettier',
   ],
   overrides: [
@@ -40,7 +41,14 @@ pub const ESLINT: &str = r#"module.exports = {
     ecmaVersion: 11,
     sourceType: 'module',
   },
-  plugins: ['@typescript-eslint', 'react', 'react-hooks', 'prettier', 'import', 'jest'],
+  plugins: [
+    '@typescript-eslint',
+    'react',
+    'react-hooks',
+    'prettier',
+    'import',
+    'jest',
+  ],
   rules: {
     'consistent-return': 0,
     'import/export': 2,
@@ -68,7 +76,7 @@ pub const ESLINT: &str = r#"module.exports = {
     },
   },
 };
-"#;
+";
 
 pub const ESLINT_IGNORE: &str = "*/.js
 build
@@ -87,6 +95,19 @@ pub const NPM_I: &str = "npm i";
 
 pub const NPM_I_DEV: &str = "npm i -D";
 
+pub const LINT_DEPENDENCIES: [&str; 10] = [
+    "prettier",
+    "eslint",
+    "eslint-plugin-react",
+    "eslint-plugin-react-hooks",
+    "eslint-config-prettier",
+    "eslint-plugin-prettier",
+    "eslint-import-resolver-typescript",
+    "eslint-plugin-import",
+    "eslint-plugin-jest",
+    "@typescript-eslint/eslint-plugin",
+];
+
 pub const DEPENDENCIES: [&str; 10] = [
     "prettier",
     "eslint",
@@ -98,6 +119,24 @@ pub const DEPENDENCIES: [&str; 10] = [
     "eslint-plugin-import",
     "eslint-plugin-jest",
     "@typescript-eslint/eslint-plugin",
+];
+
+pub const VITE_DEPS: [&str; 15] = [
+    "prettier",
+    "eslint",
+    "eslint-plugin-react",
+    "eslint-plugin-react-hooks",
+    "eslint-config-prettier",
+    "eslint-plugin-prettier",
+    "eslint-import-resolver-typescript",
+    "eslint-plugin-import",
+    "@typescript-eslint/eslint-plugin",
+    "@testing-library/jest-dom",
+    "@testing-library/react",
+    "@testing-library/user-event",
+    "eslint-plugin-vitest",
+    "jsdom",
+    "vitest",
 ];
 
 pub const PRETTIER: &str = r#"{
