@@ -1,7 +1,9 @@
 use anyhow::{anyhow, Ok, Result};
 use std::{
     env,
+    fs::{create_dir_all, File},
     io::Write,
+    path::PathBuf,
     process::{Child, Command, Stdio},
 };
 
@@ -15,10 +17,10 @@ pub fn run_commands(commands: String) -> Result<()> {
 
 pub fn get_os_cli() -> String {
     let target_os = env::consts::OS;
-    if target_os == "windows" {
-        return "powershell".to_string();
+    match target_os {
+        "windows" => "powershell".to_string(),
+        _ => "sh".to_string(),
     }
-    "sh".to_string()
 }
 
 pub fn get_child_process(cli: &str) -> Child {
@@ -32,5 +34,13 @@ pub fn run_command_on_child(child: &mut Child, command: &[u8]) -> Result<()> {
         .as_mut()
         .ok_or(anyhow!("Failed to capture stdin"))?
         .write_all(command)?;
+    Ok(())
+}
+
+pub fn write_file(filepath: &PathBuf, content: String) -> Result<()> {
+    let parent = filepath.parent().unwrap();
+    create_dir_all(parent)?;
+    let mut file = File::create(filepath)?;
+    file.write_all(content.as_bytes())?;
     Ok(())
 }
