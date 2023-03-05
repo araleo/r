@@ -6,8 +6,7 @@ use anyhow::{anyhow, Ok, Result};
 use colored::Colorize;
 use std::{
     ffi::OsStr,
-    fs::{create_dir_all, File},
-    io::Write,
+    fs::create_dir_all,
     path::{Path, PathBuf},
 };
 use walkdir::{DirEntry, WalkDir};
@@ -17,7 +16,7 @@ pub fn create_app(name: &str, toolchain: String) -> Result<()> {
     run_create_app_commands(name, toolchain)?;
     println!("{}", "Adding configuration files.".bold().yellow());
     create_app_config_files(name)?;
-    println!("{}", "\n\nDone! Happy coding!\n\n".bold().green());
+    println!("{}", "\n\nR is done! Happy coding!\n\n".bold().green());
     Ok(())
 }
 
@@ -55,7 +54,7 @@ fn get_app_install_command(toolchain: String) -> String {
 fn get_app_install_deps_command() -> String {
     let npm_install = constants::NPM_I_DEV.to_string();
     let dependencies = constants::DEPENDENCIES.join(" ");
-    npm_install + &dependencies
+    npm_install + " " + &dependencies
 }
 
 fn create_app_config_files(app_name: &str) -> Result<()> {
@@ -69,19 +68,19 @@ fn create_app_config_files(app_name: &str) -> Result<()> {
 
 fn create_prettier_file(app_folder: &Path) -> Result<()> {
     let filepath = app_folder.join(".prettierrc.json");
-    write_file(&filepath, constants::PRETTIER.to_string())?;
+    os::write_file(&filepath, constants::PRETTIER.to_string())?;
     Ok(())
 }
 
 fn create_eslint_file(app_folder: &Path) -> Result<()> {
-    let filepath = app_folder.join(".eslintrc.js");
-    write_file(&filepath, constants::ESLINT.to_string())?;
+    let filepath = app_folder.join(".eslintrc.cjs");
+    os::write_file(&filepath, constants::ESLINT.to_string())?;
     Ok(())
 }
 
 fn create_eslint_ignore_file(app_folder: &Path) -> Result<()> {
     let filepath = app_folder.join(".eslintignore");
-    write_file(&filepath, constants::ESLINT_IGNORE.to_string())?;
+    os::write_file(&filepath, constants::ESLINT_IGNORE.to_string())?;
     Ok(())
 }
 
@@ -89,9 +88,9 @@ fn create_vscode_settings_and_snippets(app_folder: &Path) -> Result<()> {
     let vscode_folder = app_folder.join(".vscode");
     create_dir_all(vscode_folder.clone())?;
     let settings_path = vscode_folder.join("settings.json");
-    write_file(&settings_path, constants::VSCODE_SETTINGS.to_string())?;
+    os::write_file(&settings_path, constants::VSCODE_SETTINGS.to_string())?;
     let snippets_path = vscode_folder.join("react.code-snippets");
-    write_file(&snippets_path, constants::VSCODE_SNIPPETS.to_string())?;
+    os::write_file(&snippets_path, constants::VSCODE_SNIPPETS.to_string())?;
     Ok(())
 }
 
@@ -107,7 +106,7 @@ pub fn create_component(
     let extension = get_file_extension("component");
     let path = get_path_to_write(root_path, name, extension, flat);
     let template = fill_template(templates::COMPONENT, name);
-    write_file(&path, template)?;
+    os::write_file(&path, template)?;
     if test {
         create_component_test(root_path, name, flat)?;
     }
@@ -118,7 +117,7 @@ fn create_component_test(root: &Path, name: &str, flat: bool) -> Result<()> {
     let test_extension = get_file_extension("comp_test");
     let test_path = get_path_to_write(root, name, test_extension, flat);
     let test_template = fill_template(templates::TEST, name);
-    write_file(&test_path, test_template)?;
+    os::write_file(&test_path, test_template)?;
     Ok(())
 }
 
@@ -134,7 +133,7 @@ pub fn create_hook(
     let extension = get_file_extension("hook");
     let path = get_path_to_write(root_path, name, extension, flat);
     let template = fill_template(templates::HOOK, name);
-    write_file(&path, template)?;
+    os::write_file(&path, template)?;
     if test {
         create_hook_test(root_path, name, flat)?;
     }
@@ -145,7 +144,7 @@ fn create_hook_test(root: &Path, name: &str, flat: bool) -> Result<()> {
     let test_extension = get_file_extension("test");
     let test_path = get_path_to_write(root, name, test_extension, flat);
     let test_template = fill_template(templates::HOOK_TEST, name);
-    write_file(&test_path, test_template)?;
+    os::write_file(&test_path, test_template)?;
     Ok(())
 }
 
@@ -170,9 +169,9 @@ pub fn add_vscode() -> Result<()> {
     let vscode_folder = app_folder.join(".vscode");
     create_dir_all(vscode_folder.clone())?;
     let settings_path = vscode_folder.join("settings.json");
-    write_file(&settings_path, constants::VSCODE_SETTINGS.to_string())?;
+    os::write_file(&settings_path, constants::VSCODE_SETTINGS.to_string())?;
     let snippets_path = vscode_folder.join("react.code-snippets");
-    write_file(&snippets_path, constants::VSCODE_SNIPPETS.to_string())?;
+    os::write_file(&snippets_path, constants::VSCODE_SNIPPETS.to_string())?;
     Ok(())
 }
 
@@ -222,14 +221,6 @@ fn get_file_extension(mode: &str) -> &str {
 
 fn fill_template(template: &str, component_name: &str) -> String {
     template.replace("NAME", component_name)
-}
-
-fn write_file(filepath: &PathBuf, content: String) -> Result<()> {
-    let parent = filepath.parent().unwrap();
-    create_dir_all(parent)?;
-    let mut file = File::create(filepath)?;
-    file.write_all(content.as_bytes())?;
-    Ok(())
 }
 
 #[cfg(test)]
