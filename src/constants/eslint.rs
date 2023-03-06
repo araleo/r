@@ -74,16 +74,16 @@ pub fn get_config() -> String {
 }
 
 const ESLINT_IGNORE: &str = "*/.js
-  build
-  dist
-  node_modules/
-  .npm
-  .eslintcache
-  *.tgz
-  .env
-  .env.*
-  .vscode/*
-  .history/
+build
+dist
+node_modules/
+.npm
+.eslintcache
+*.tgz
+.env
+.env.*
+.vscode/*
+.history/
   ";
 
 pub fn get_ignore() -> String {
