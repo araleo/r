@@ -33,3 +33,39 @@ describe('NAME hook tests', () => {
 pub const CRA: &str = "npx create-react-app NAME --template typescript";
 
 pub const VITE: &str = "npm create vite@latest NAME -- --template=react-ts";
+
+pub fn fill_template(template: &str, component_name: &str) -> String {
+    template.replace("NAME", component_name)
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn test_fill_template() {
+        let template = "const NAME = test";
+        let name = "test";
+        let content = fill_template(template, name);
+        let expected = "const test = test".to_string();
+        assert_eq!(content, expected);
+    }
+
+    #[test]
+    fn test_fill_empty_template() {
+        let template = "";
+        let name = "test";
+        let content = fill_template(template, name);
+        let expected = "".to_string();
+        assert_eq!(content, expected);
+    }
+
+    #[test]
+    fn test_fill_template_no_replace_match() {
+        let template = "const COLOR = blue";
+        let name = "test";
+        let content = fill_template(template, name);
+        let expected = "const COLOR = blue";
+        assert_eq!(content, expected);
+    }
+}

@@ -2,7 +2,7 @@ use anyhow::{anyhow, Ok, Result};
 use r::constants;
 use std::{fs::create_dir_all, path::PathBuf};
 
-pub fn get_config_dir() -> Result<PathBuf> {
+pub fn _get_config_dir() -> Result<PathBuf> {
     let home_dir = dirs_next::home_dir();
     match home_dir {
         Some(h) => {
@@ -16,7 +16,7 @@ pub fn get_config_dir() -> Result<PathBuf> {
     }
 }
 
-pub fn get_profile_dir(config_dir: PathBuf, profile: &str) -> Result<PathBuf> {
+pub fn _get_profile_dir(config_dir: PathBuf, profile: &str) -> Result<PathBuf> {
     let profile_dir = config_dir.join(profile);
     if profile_dir.exists() {
         return Ok(profile_dir);
@@ -24,9 +24,8 @@ pub fn get_profile_dir(config_dir: PathBuf, profile: &str) -> Result<PathBuf> {
     Err(anyhow!("Could not find profile"))
 }
 
-pub fn create_default_profile(config_dir: PathBuf) -> Result<()> {
+pub fn _create_default_profile(config_dir: PathBuf) -> Result<()> {
     let default_profile_dir = config_dir.join(constants::DEFAULT_PROFILE);
     create_dir_all(default_profile_dir)?;
-
     Ok(())
 }

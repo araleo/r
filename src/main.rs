@@ -34,12 +34,6 @@ struct Cli {
 fn main() -> Result<()> {
     let args = Cli::parse();
 
-    let config_dir = profile::get_config_dir()?;
-    let profile_name = args
-        .profile
-        .unwrap_or(constants::DEFAULT_PROFILE.to_string());
-    let profile_dir = profile::get_profile_dir(config_dir, &profile_name);
-
     let command = args.command.as_str();
     let name = args.name.unwrap_or("".to_string());
     check_name(&name, command)?;
