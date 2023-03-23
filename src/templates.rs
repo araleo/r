@@ -38,6 +38,14 @@ pub fn fill_template(template: &str, component_name: &str) -> String {
     template.replace("NAME", component_name)
 }
 
+pub fn get_toolchain_template(toolchain: &str) -> String {
+    match toolchain {
+        "cra" => CRA.to_string(),
+        "vite" => VITE.to_string(),
+        _ => VITE.to_string(),
+    }
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;
@@ -67,5 +75,33 @@ mod tests {
         let content = fill_template(template, name);
         let expected = "const COLOR = blue";
         assert_eq!(content, expected);
+    }
+
+    #[test]
+    fn test_get_toolchain_template_cra() {
+        let template = get_toolchain_template("cra");
+        let expected = "npx create-react-app NAME --template typescript";
+        assert_eq!(template, expected);
+    }
+
+    #[test]
+    fn test_get_toolchain_template_vite() {
+        let template = get_toolchain_template("vite");
+        let expected = "npm create vite@latest NAME -- --template=react-ts";
+        assert_eq!(template, expected);
+    }
+
+    #[test]
+    fn test_get_toolchain_template_empty_string() {
+        let template = get_toolchain_template("");
+        let expected = "npm create vite@latest NAME -- --template=react-ts";
+        assert_eq!(template, expected);
+    }
+
+    #[test]
+    fn test_get_toolchain_template_default() {
+        let template = get_toolchain_template("test");
+        let expected = "npm create vite@latest NAME -- --template=react-ts";
+        assert_eq!(template, expected);
     }
 }
