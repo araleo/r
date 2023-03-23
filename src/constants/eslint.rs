@@ -1,4 +1,4 @@
-const ESLINT_CRA: &str = "module.exports = {
+const ESLINT: &str = "module.exports = {
   env: {
     browser: true,
     es2020: true,
@@ -11,18 +11,7 @@ const ESLINT_CRA: &str = "module.exports = {
     'plugin:react/recommended',
     'plugin:react/jsx-runtime',
     'plugin:react-hooks/recommended',
-    'plugin:jest/recommended',
-    'plugin:jest/style',
     'prettier',
-  ],
-  overrides: [
-    {
-      files: ['*.jsx', '*.tsx'],
-      excludedFiles: '*.test.*',
-      rules: {
-        'import/prefer-default-export': 1,
-      },
-    },
   ],
   parser: '@typescript-eslint/parser',
   parserOptions: {
@@ -37,16 +26,9 @@ const ESLINT_CRA: &str = "module.exports = {
     'react',
     'react-hooks',
     'prettier',
-    'import',
-    'jest',
   ],
   rules: {
-    'consistent-return': 0,
-    'import/export': 2,
     'no-console': 1,
-    'no-nested-ternary': 0,
-    'no-param-reassign': 0,
-    'no-underscore-dangle': 0,
     'prettier/prettier': 'error',
     'react/jsx-filename-extension': [1, { extensions: ['.tsx', '.jsx'] }],
     'react/jsx-props-no-spreading': 0,
@@ -54,7 +36,6 @@ const ESLINT_CRA: &str = "module.exports = {
       2,
       { namedComponents: 'arrow-function' },
     ],
-    'react/require-default-props': 0,
     'react-hooks/exhaustive-deps': 'warn',
     'react-hooks/rules-of-hooks': 'error',
   },
@@ -70,7 +51,7 @@ const ESLINT_CRA: &str = "module.exports = {
 ";
 
 pub fn get_config() -> String {
-    ESLINT_CRA.to_string()
+    ESLINT.to_string()
 }
 
 const ESLINT_IGNORE: &str = "*/.js
