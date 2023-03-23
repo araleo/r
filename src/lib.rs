@@ -80,7 +80,7 @@ pub fn add_lint_and_code() -> Result<()> {
 }
 
 pub fn add_eslint() -> Result<()> {
-    let install_deps_command = app_config::get_app_install_deps_command();
+    let install_deps_command = app_config::get_install_lint_dependencies_command();
     os::run_commands(install_deps_command)?;
     let app_folder = &PathBuf::from(".").canonicalize()?;
     os::create_prettier_file(app_folder)?;
