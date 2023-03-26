@@ -9,6 +9,7 @@ use crate::app_config::create_app_config_files;
 use anyhow::{Ok, Result};
 use colored::Colorize;
 use std::path::{Path, PathBuf};
+use utils::camel_case_to_kebab_case;
 
 pub fn create_app(name: &str, toolchain: String) -> Result<()> {
     println!("{}", "Setting up a new React App.".bold().yellow());
@@ -56,11 +57,12 @@ pub fn create_hook(
     let root_name = root.unwrap_or("hooks".to_string());
     let root_path = &utils::get_base_path(".", &root_name, dir)?;
     let extension = utils::get_file_extension("hook");
-    let path = utils::get_path_to_write(root_path, name, extension, flat);
+    let filename = &camel_case_to_kebab_case(&mut name.to_string());
+    let path = utils::get_path_to_write(root_path, filename, extension, flat);
     let template = templates::fill_template(templates::HOOK, name);
     os::write_file(&path, template)?;
     if test {
-        create_hook_test(root_path, name, flat)?;
+        create_hook_test(root_path, filename, flat)?;
     }
     Ok(())
 }

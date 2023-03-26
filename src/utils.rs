@@ -7,7 +7,7 @@ use anyhow::{anyhow, Ok, Result};
 use regex::Regex;
 use walkdir::{DirEntry, WalkDir};
 
-use crate::constants;
+use crate::constants::{eslint, IGNORED_DIRS};
 
 pub fn _get_dependencies_from_eslint_file() -> Result<()> {
     // to install the dependencies I should create a map
@@ -16,7 +16,7 @@ pub fn _get_dependencies_from_eslint_file() -> Result<()> {
     // if while parsing the file a plugin is found which is
     // not in this map we should ask for the user input
     // and store the name of the the plugin in the .r folder
-    let content = constants::eslint::get_config();
+    let content = eslint::get_config();
     let extends_index = content.find("extends").unwrap();
     let slice = &content[extends_index..];
     let start_bracket = slice.find('[').unwrap();
@@ -27,6 +27,21 @@ pub fn _get_dependencies_from_eslint_file() -> Result<()> {
     let lines: Vec<&str> = extends.split('\'').filter(|s| !s.is_empty()).collect();
     println!("{lines:?}");
     Ok(())
+}
+
+pub fn camel_case_to_kebab_case(s: &mut String) -> String {
+    let uppercase_indexes = find_uppercase_indexes(s);
+    for i in uppercase_indexes {
+        s.insert(i, '-');
+    }
+    s.to_lowercase()
+}
+
+fn find_uppercase_indexes(s: &str) -> Vec<usize> {
+    s.match_indices(char::is_uppercase)
+        .enumerate()
+        .map(|(i, (index, _))| index + i)
+        .collect::<Vec<_>>()
 }
 
 pub fn get_base_path(root: &str, pattern: &str, base: Option<String>) -> Result<PathBuf> {
@@ -51,11 +66,10 @@ pub fn find_folder_by_pattern(root: PathBuf, pattern: &str) -> Result<PathBuf> {
 }
 
 pub fn is_ignored(entry: &DirEntry) -> bool {
-    let ignore = vec!["node_modules", "dist", "__tests__", "tests"];
     entry
         .file_name()
         .to_str()
-        .map(|s| ignore.contains(&s))
+        .map(|s| IGNORED_DIRS.contains(&s))
         .unwrap_or(false)
 }
 
@@ -76,6 +90,48 @@ pub fn get_file_extension(mode: &str) -> &str {
 #[cfg(test)]
 mod tests {
     use super::*;
+
+    #[test]
+    fn test_camel_case_to_kebab_case() {
+        let result = camel_case_to_kebab_case(&mut "useTestMeString".to_string());
+        let expected = "use-test-me-string";
+        assert_eq!(result, expected);
+    }
+
+    #[test]
+    fn test_camel_case_to_kebab_case_no_diff() {
+        let result = camel_case_to_kebab_case(&mut "test-me".to_string());
+        let expected = "test-me";
+        assert_eq!(result, expected);
+    }
+
+    #[test]
+    fn test_camel_case_to_kebab_case_empty_string() {
+        let result = camel_case_to_kebab_case(&mut "".to_string());
+        let expected = "";
+        assert_eq!(result, expected);
+    }
+
+    #[test]
+    fn test_find_uppercase_indexes() {
+        let indexes = find_uppercase_indexes("testTestTesterTest");
+        let expected: [usize; 3] = [4, 9, 16];
+        assert_eq!(indexes, expected);
+    }
+
+    #[test]
+    fn test_find_uppercase_indexes_empty_string() {
+        let indexes = find_uppercase_indexes("");
+        let expected: [usize; 0] = [];
+        assert_eq!(indexes, expected);
+    }
+
+    #[test]
+    fn test_find_uppercase_indexes_lowercase_string() {
+        let indexes = find_uppercase_indexes("test-test-test");
+        let expected: [usize; 0] = [];
+        assert_eq!(indexes, expected);
+    }
 
     #[test]
     fn test_get_path_to_write_flat() {

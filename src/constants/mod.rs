@@ -13,3 +13,12 @@ lc: Adds eslint and vscode settings and snippets to an existing app (lint and co
 eslint: Adds eslint to an existing app (eslint)
 vscode: Adds vscode settings and snippets to an existing app (vscode)
 ";
+
+pub const IGNORED_DIRS: [&str; 6] = [
+    "node_modules",
+    "dist",
+    "__tests__",
+    "tests",
+    ".git",
+    ".vscode",
+];
