@@ -1,5 +1,5 @@
 use crate::app_config;
-use crate::constants;
+use crate::constants::dependencies;
 use crate::os;
 use crate::templates;
 
@@ -22,7 +22,7 @@ fn get_create_app_commands(app_name: &str, toolchain: String) -> String {
 
 fn get_install_command(toolchain: &str) -> String {
     match toolchain {
-        "vite" => constants::dependencies::NPM_I.to_string(),
+        "vite" => dependencies::NPM_I.to_string(),
         _ => "".to_string(),
     }
 }

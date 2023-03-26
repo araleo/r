@@ -15,7 +15,7 @@ pub const LINT_DEPENDENCIES: [&str; 8] = [
 
 pub const CRA_DEPENDENCIES: [&str; 1] = ["eslint-plugin-jest"];
 
-pub const VITE_DEPS: [&str; 6] = [
+pub const VITE_DEPENDENCIES: [&str; 6] = [
     "@testing-library/jest-dom",
     "@testing-library/react",
     "@testing-library/user-event",
