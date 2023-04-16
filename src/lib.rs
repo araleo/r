@@ -52,7 +52,7 @@ fn create_component_test(root: &Path, name: &str, flat: bool) -> Result<()> {
 }
 
 fn create_style_file(root: &Path, name: &str, flat: bool) -> Result<()> {
-    let extension = utils::get_file_extension("component");
+    let extension = utils::get_file_extension("style");
     let filepath = utils::get_path_to_write(root, name, extension, flat);
     os::write_file(&filepath, "".to_string())?;
     Ok(())
