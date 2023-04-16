@@ -14,11 +14,13 @@ eslint: Adds eslint to an existing app (eslint)
 vscode: Adds vscode settings and snippets to an existing app (vscode)
 ";
 
-pub const IGNORED_DIRS: [&str; 6] = [
+pub const IGNORED_DIRS: [&str; 8] = [
     "node_modules",
     "dist",
     "__tests__",
     "tests",
     ".git",
     ".vscode",
+    "coverage",
+    "public",
 ];

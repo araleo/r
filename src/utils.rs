@@ -83,6 +83,7 @@ pub fn get_file_extension(mode: &str) -> &str {
         "component" => ".tsx",
         "comp_test" => ".test.tsx",
         "test" => ".test.ts",
+        "style" => ".style.tsx",
         _ => ".ts",
     }
 }

@@ -26,6 +26,7 @@ pub fn create_component(
     root: Option<String>,
     test: bool,
     flat: bool,
+    style: bool,
 ) -> Result<()> {
     let root_name = root.unwrap_or("components".to_string());
     let root_path = &utils::get_base_path(".", &root_name, dir)?;
@@ -36,6 +37,9 @@ pub fn create_component(
     if test {
         create_component_test(root_path, name, flat)?;
     }
+    if style {
+        create_style_file(root_path, name, flat)?;
+    }
     Ok(())
 }
 
@@ -44,6 +48,13 @@ fn create_component_test(root: &Path, name: &str, flat: bool) -> Result<()> {
     let test_path = utils::get_path_to_write(root, name, test_extension, flat);
     let test_template = templates::fill_template(templates::TEST, name);
     os::write_file(&test_path, test_template)?;
+    Ok(())
+}
+
+fn create_style_file(root: &Path, name: &str, flat: bool) -> Result<()> {
+    let extension = utils::get_file_extension("component");
+    let filepath = utils::get_path_to_write(root, name, extension, flat);
+    os::write_file(&filepath, "".to_string())?;
     Ok(())
 }
 

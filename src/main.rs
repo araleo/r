@@ -29,6 +29,9 @@ struct Cli {
 
     #[arg(short, long, help = "Don't create component/hook in it's own folder")]
     flat: bool,
+
+    #[arg(long, help = "Create .style.tsx file when creating component")]
+    style: bool,
 }
 
 fn main() -> Result<()> {
@@ -38,11 +41,18 @@ fn main() -> Result<()> {
     let name = args.name.unwrap_or("".to_string());
     check_name(&name, command)?;
 
-    let toolchain = args.toolchain.unwrap_or("".to_string());
+    let toolchain = args.toolchain.unwrap_or("vite".to_string());
 
     match command {
         "na" => r::create_app(&name, toolchain),
-        "nc" => r::create_component(&name, args.dir, args.root, !args.skip_test, args.flat),
+        "nc" => r::create_component(
+            &name,
+            args.dir,
+            args.root,
+            !args.skip_test,
+            args.flat,
+            args.style,
+        ),
         "nh" => r::create_hook(&name, args.dir, args.root, !args.skip_test, args.flat),
         "lc" => r::add_lint_and_code(),
         "eslint" => r::add_eslint(),
