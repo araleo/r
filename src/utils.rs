@@ -1,31 +1,18 @@
 use std::{
     ffi::OsStr,
+    fs::{create_dir_all, File},
+    io::Write,
     path::{Path, PathBuf},
 };
 
 use anyhow::{anyhow, Ok, Result};
-use regex::Regex;
 use walkdir::{DirEntry, WalkDir};
 
-use crate::constants::{eslint, IGNORED_DIRS};
-
-pub fn _get_dependencies_from_eslint_file() -> Result<()> {
-    // to install the dependencies I should create a map
-    // where keys are the plugin name and values the plugin
-    // full name (to install via npm or yarn)
-    // if while parsing the file a plugin is found which is
-    // not in this map we should ask for the user input
-    // and store the name of the the plugin in the .r folder
-    let content = eslint::get_config();
-    let extends_index = content.find("extends").unwrap();
-    let slice = &content[extends_index..];
-    let start_bracket = slice.find('[').unwrap();
-    let end_bracket = slice.find(']').unwrap();
-    let extends = &slice[start_bracket..end_bracket + 1];
-    let re = Regex::new(r"[\s\[\],]").unwrap();
-    let extends = re.replace_all(extends, "");
-    let lines: Vec<&str> = extends.split('\'').filter(|s| !s.is_empty()).collect();
-    println!("{lines:?}");
+pub fn write_file(filepath: &PathBuf, content: String) -> Result<()> {
+    let parent = filepath.parent().unwrap();
+    create_dir_all(parent)?;
+    let mut file = File::create(filepath)?;
+    file.write_all(content.as_bytes())?;
     Ok(())
 }
 
@@ -87,6 +74,17 @@ pub fn get_file_extension(mode: &str) -> &str {
         _ => ".ts",
     }
 }
+
+const IGNORED_DIRS: [&str; 8] = [
+    "node_modules",
+    "dist",
+    "__tests__",
+    "tests",
+    ".git",
+    ".vscode",
+    "coverage",
+    "public",
+];
 
 #[cfg(test)]
 mod tests {

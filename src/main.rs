@@ -1,12 +1,9 @@
-mod profile;
-
 use anyhow::{anyhow, Ok, Result};
 use clap::Parser;
-use r::constants;
 
 #[derive(Debug, Parser)]
 struct Cli {
-    #[arg(help = constants::COMMANDS_HELPER)]
+    #[arg(help = COMMANDS_HELPER)]
     command: String,
 
     #[arg(short, long, help = "App/component/hook name")]
@@ -17,12 +14,6 @@ struct Cli {
 
     #[arg(short, long, help = "Root directory. Defaults to components or hooks")]
     root: Option<String>,
-
-    #[arg(short, long, help = "Toolchain to create a new app")]
-    toolchain: Option<String>,
-
-    #[arg(short, long, help = "Which profile to use for configuration files")]
-    profile: Option<String>,
 
     #[arg(short, long, help = "Skip test file")]
     skip_test: bool,
@@ -41,10 +32,7 @@ fn main() -> Result<()> {
     let name = args.name.unwrap_or("".to_string());
     check_name(&name, command)?;
 
-    let toolchain = args.toolchain.unwrap_or("vite".to_string());
-
     match command {
-        "na" => r::create_app(&name, toolchain),
         "nc" => r::create_component(
             &name,
             args.dir,
@@ -54,9 +42,6 @@ fn main() -> Result<()> {
             args.style,
         ),
         "nh" => r::create_hook(&name, args.dir, args.root, !args.skip_test, args.flat),
-        "lc" => r::add_lint_and_code(),
-        "eslint" => r::add_eslint(),
-        "vscode" => r::add_vscode(),
         _ => command_error(),
     }?;
 
@@ -64,8 +49,7 @@ fn main() -> Result<()> {
 }
 
 fn check_name(name: &String, command: &str) -> Result<()> {
-    let commands_with_name = vec!["na", "nc", "nh"];
-    if name.is_empty() && commands_with_name.contains(&command) {
+    if name.is_empty() {
         return Err(anyhow!(
             "ERROR: {command} command needs a name. Please provide it with the --name or -n option"
         ));
@@ -74,6 +58,15 @@ fn check_name(name: &String, command: &str) -> Result<()> {
 }
 
 fn command_error() -> Result<()> {
-    eprintln!("ERROR: \n{}", constants::COMMANDS_HELPER);
+    eprintln!("ERROR: \n{}", COMMANDS_HELPER);
     Ok(())
 }
+
+const COMMANDS_HELPER: &str = "Available commands:
+na: New App (new app)
+nc: New component (new component)
+nh: New hook (new hook)
+lc: Adds eslint and vscode settings and snippets to an existing app (lint and code)
+eslint: Adds eslint to an existing app (eslint)
+vscode: Adds vscode settings and snippets to an existing app (vscode)
+";
