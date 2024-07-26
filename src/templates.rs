@@ -30,6 +30,23 @@ describe('NAME hook tests', () => {
 });
 ";
 
+pub const STORIES: &str = "import type { Meta, StoryObj } from '@storybook/react';
+import NAME from './NAME';
+
+const meta: Meta<typeof NAME> = {
+  component: NAME,
+};
+
+export default meta;
+
+type Story = StoryObj<typeof NAME>;
+
+export const Primary: Story = {
+  args: {},
+  render: (args) => <NAME {...args} />,
+};
+";
+
 pub fn fill_template(template: &str, component_name: &str) -> String {
     template.replace("NAME", component_name)
 }

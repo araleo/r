@@ -71,6 +71,7 @@ pub fn get_file_extension(mode: &str) -> &str {
         "comp_test" => ".test.tsx",
         "test" => ".test.ts",
         "style" => ".style.tsx",
+        "story" => ".stories.tsx",
         _ => ".ts",
     }
 }

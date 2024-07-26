@@ -8,9 +8,10 @@ pub fn create_component(
     name: &str,
     dir: Option<String>,
     root: Option<String>,
-    test: bool,
     flat: bool,
+    test: bool,
     style: bool,
+    story: bool,
 ) -> Result<()> {
     let root_name = root.unwrap_or("components".to_string());
     let root_path = &utils::get_base_path(".", &root_name, dir)?;
@@ -23,6 +24,9 @@ pub fn create_component(
     }
     if style {
         create_style_file(root_path, name, flat)?;
+    }
+    if story {
+        create_story_file(root_path, name, flat)?;
     }
     Ok(())
 }
@@ -39,6 +43,14 @@ fn create_style_file(root: &Path, name: &str, flat: bool) -> Result<()> {
     let extension = utils::get_file_extension("style");
     let filepath = utils::get_path_to_write(root, name, extension, flat);
     utils::write_file(&filepath, "".to_string())?;
+    Ok(())
+}
+
+fn create_story_file(root: &Path, name: &str, flat: bool) -> Result<()> {
+    let extension = utils::get_file_extension("story");
+    let filepath = utils::get_path_to_write(root, name, extension, flat);
+    let story_template = templates::fill_template(templates::STORIES, name);
+    utils::write_file(&filepath, story_template)?;
     Ok(())
 }
 
